@@ -23,39 +23,11 @@ def sql_fetch_recipe_db(url):
     return recipe_cursor.fetchall()
 
 
-def sql_fetch_recipes_with_video(url):
-    recipe_connection = sqlite3.connect(pt.recipes_with_vid)
-    recipe_cursor = recipe_connection.cursor()
-    if url == "all":
-        recipe_cursor.execute("SELECT * FROM RecipesWithVideo;")
-    else:
-        recipe_cursor.execute("SELECT * FROM RecipesWithVideo WHERE URL = " + url + ";")
-    return recipe_cursor.fetchall()
-
-
 def sql_fetch_kitchenware_db():
     utils_connection = sqlite3.connect(pt.kitchenware)
     utils_cursor = utils_connection.cursor()
     utils_cursor.execute("SELECT * FROM Kitchenware;")
     return utils_cursor.fetchall()
-
-
-class ToolI:
-    TOOL = 0
-    KITCHENWARE = 1
-    DIRECT_VERB = 2
-    AMBIGUOUS_VERB = 3
-    IMPLIED = 4
-    DEFINE = 5
-    TITLE = 6
-    ISA = 7
-    NOT_ISA = 8
-    SIZE = 9
-    NOT_SIZE = 10
-    SUBJECT = 11
-    NOT_SUBJECT = 12
-    INGREDIENT = 13
-    NOT_INGREDIENT = 14
 
 
 class RecipeI:

@@ -3,12 +3,14 @@ import sqlite3
 
 
 if __name__ == "__main__":
-    conn = sqlite3.connect('//recipes/db/recipes_with_1to1_video.db')
+    conn = sqlite3.connect('/home/leander/Desktop/automatic_KB_construction/recipes/old_recipes/recipes1.db')
     c = conn.cursor()
 
-    c.execute("SELECT * FROM RecipesWith1To1Video;")
+    c.execute("SELECT * FROM Recipes;")
     rows = c.fetchall()
-
+    i = 0
     for row in rows:
-        if " coat " in row[7].lower() and not (" toss " in row[7].lower()):
-            print(row[0], row[7])
+        if "garnish" in row[7].lower():
+            print(row[7])
+            i += 1
+    print(i)

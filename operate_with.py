@@ -100,7 +100,7 @@ def get_range(dic_values, is_x_axis):
 
 
 def is_key_location(key):
-    return key in pt.kitchenware
+    return key in pt.kitchenware_cv
 
 
 def get_tool(dic):

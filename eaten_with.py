@@ -22,7 +22,7 @@ class EatenWith:
     def filter_out_none_cutlery_and_eating_tools(self, tools):
         for tool in tools:
             for tool_key in tool:
-                if tool_key in pt.cutlery:
+                if tool_key in pt.cutlery_cv:
                     self.last_detected_cutlery = tool_key, tool[tool_key][1]
                     if tool_key in self.cutlery:
                         self.cutlery[tool_key].append(tool[tool_key][1])
@@ -30,7 +30,7 @@ class EatenWith:
                     else:
                         self.cutlery[tool_key] = [tool[tool_key][1]]
                         print("[filter_out_none_cutlery] added cutlery first time: ", tool_key)
-                elif tool_key in pt.eating_kitchenware:
+                elif tool_key in pt.eating_kitchenware_cv:
                     self.last_detected_container = tool_key, tool[tool_key][1]
                     if tool_key in self.container:
                         self.container[tool_key].append(tool[tool_key][1])

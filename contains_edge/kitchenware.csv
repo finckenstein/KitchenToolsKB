@@ -1,12 +1,18 @@
 Verb,Associated_Tool,Default
-cook,"pot, saucepan, pan, skillet, griddle, grill, barbecue, bbq, air fryer",pan
-simmer,"pot, saucepan, pan, skillet, griddle",pot
-fry,"pan, skillet, grill, barbecue, bbq, air fryer, griddle",pan
-sear,"pan, skillet, grill, barbecue, bbq, air fryer, griddle",pan
-roast,"pan, skillet, grill, barbecue, bbq, air fryer, griddle",pan
-bake,"baking dish, foil dish, casserole, baking sheet, sheet pan, pan, skillet, griddle",casserole
-grill,"grill, bbq, barbecue, air fryer",barbecue
-toss,"bowl, mixer",bowl
+cook,"pot, pan, grill, baking dish, baking sheet",pan
+simmer,"pot, pan, grill",pot
+fry,"pan, grill",pan
+sear,"pan, grill",pan
+roast,"pan, grill",pan
+bake,"baking dish, baking sheet, pan, cupcake tin",baking dish
+grill,grill,grill
+toss,"bowl, pot, pan, baking sheet, baking dish",bowl
 blend,blender,blender
 mash,bowl,bowl
-preheat,"griddle, baking dish, foil dish, casserole, baking sheet, sheet pan, pan, skillet",baking sheet
+preheat,"grill, baking dish, baking sheet, pan, pot",baking sheet
+cut,cutting board,cutting board
+garnish,"bowl, plate",plate
+serve,"bowl, plate",plate
+beat,cutting board,cutting board
+smash,cutting board,cutting board
+hammer,cutting board,cutting board
