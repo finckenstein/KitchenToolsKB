@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import sqlite3
+import utility.paths as pt
 
 
 def sql_fetch_1to1_videos(url):
-    recipe_conn = sqlite3.connect('/home/leander/Desktop/kt_extraction/recipes/db/recipes_with_1to1_video.db')
+    recipe_conn = sqlite3.connect(pt.recipes_with_1to1_video)
     recipe_cursor = recipe_conn.cursor()
     if url == "all":
         recipe_cursor.execute("SELECT * FROM RecipesWith1To1Video;")
@@ -13,7 +14,7 @@ def sql_fetch_1to1_videos(url):
 
 
 def sql_fetch_recipe_db(url):
-    recipe_connection = sqlite3.connect('/home/leander/Desktop/kt_extraction/recipes/old_recipes/recipes1.db')
+    recipe_connection = sqlite3.connect(pt.all_recipes)
     recipe_cursor = recipe_connection.cursor()
     if url == "all":
         recipe_cursor.execute("SELECT * FROM Recipes;")
@@ -23,7 +24,7 @@ def sql_fetch_recipe_db(url):
 
 
 def sql_fetch_recipes_with_video(url):
-    recipe_connection = sqlite3.connect('/home/leander/Desktop/kt_extraction/recipes/old_recipes/recipes_with_video.db')
+    recipe_connection = sqlite3.connect(pt.recipes_with_vid)
     recipe_cursor = recipe_connection.cursor()
     if url == "all":
         recipe_cursor.execute("SELECT * FROM RecipesWithVideo;")
@@ -32,15 +33,8 @@ def sql_fetch_recipes_with_video(url):
     return recipe_cursor.fetchall()
 
 
-def sql_fetch_tools_db():
-    utils_connection = sqlite3.connect('/home/leander/Desktop/kt_extraction/constructed_knowledge/tools.db')
-    utils_cursor = utils_connection.cursor()
-    utils_cursor.execute("SELECT * FROM Tools;")
-    return utils_cursor.fetchall()
-
-
 def sql_fetch_kitchenware_db():
-    utils_connection = sqlite3.connect('/home/leander/Desktop/kt_extraction/constructed_knowledge/kitchenware.db')
+    utils_connection = sqlite3.connect(pt.kitchenware)
     utils_cursor = utils_connection.cursor()
     utils_cursor.execute("SELECT * FROM Kitchenware;")
     return utils_cursor.fetchall()
