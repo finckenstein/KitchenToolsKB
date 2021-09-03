@@ -8,6 +8,7 @@ import pathlib
 
 from computer_vision.tensorflow_object_detection_utils import ops as utils_ops
 from computer_vision.tensorflow_object_detection_utils import visualization_utils as vis_util
+import utility.paths as path
 
 
 def load_model(model_path):
@@ -54,6 +55,39 @@ def run_inference_for_single_image(model, image):
     return output_dict
 
 
+def show_image(image_np, output_dic, category_index, accuracy):
+    vis_util.visualize_boxes_and_labels_on_image(
+        image_np,
+        output_dic['detection_boxes'],
+        output_dic['detection_classes'],
+        output_dic['detection_scores'],
+        category_index,
+        instance_masks=output_dic.get('detection_masks_reframed', None),
+        use_normalized_coordinates=True,
+        line_thickness=4,
+        min_score_thresh=accuracy)
+
+    cv2.imshow('object_detection', cv2.resize(image_np, (640, 640)))
+
+    while True:
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            cv2.destroyAllWindows()
+            break
+
+
+def make_inference(image_np, output_dict, category_index, accuracy):
+    return vis_util.get_coordinates_for_tool_found(
+        image_np,
+        output_dict['detection_boxes'],
+        output_dict['detection_classes'],
+        output_dict['detection_scores'],
+        category_index,
+        instance_masks=output_dict.get('detection_masks_reframed', None),
+        use_normalized_coordinates=True,
+        line_thickness=4,
+        min_score_thresh=accuracy)
+
+
 def make_inference_for_ow(capture, model, fr, category_index, accuracy, get_what):
     frame_id = capture.get(get_what)  # current frame number
     ret, image_np = capture.read()
@@ -63,38 +97,11 @@ def make_inference_for_ow(capture, model, fr, category_index, accuracy, get_what
     if frame_id % math.floor(fr) == 0:
         # Actual detection.
         output_dict = run_inference_for_single_image(model, image_np)
+
         # Visualization of the results of a detection.
+        show_image(image_np, output_dict, category_index, accuracy)
 
-        # vis_util.visualize_boxes_and_labels_on_image(
-        #     image_np,
-        #     output_dict['detection_boxes'],
-        #     output_dict['detection_classes'],
-        #     output_dict['detection_scores'],
-        #     category_index,
-        #     instance_masks=output_dict.get('detection_masks_reframed', None),
-        #     use_normalized_coordinates=True,
-        #     line_thickness=4,
-        #     min_score_thresh=accuracy)
-        #
-        # cv2.imshow('object_detection', cv2.resize(image_np, (640, 640)))
-        #
-        # while True:
-        #     if cv2.waitKey(1) & 0xFF == ord('q'):
-        #         cv2.destroyAllWindows()
-        #         break
-
-        found_boxes = vis_util.get_coordinates_for_tool_found(
-            image_np,
-            output_dict['detection_boxes'],
-            output_dict['detection_classes'],
-            output_dict['detection_scores'],
-            category_index,
-            instance_masks=output_dict.get('detection_masks_reframed', None),
-            use_normalized_coordinates=True,
-            line_thickness=4,
-            min_score_thresh=accuracy)
-
-        return True, found_boxes
+        return True, make_inference(image_np, output_dict, category_index, accuracy)
     return True, []
 
 
@@ -108,36 +115,39 @@ def make_inference_for_ew(capture, model, fr, category_index, accuracy, get_what
     if frame_id % math.floor(fr) == 0:
         # Actual detection.
         output_dict = run_inference_for_single_image(model, image_np)
+
         # Visualization of the results of a detection.
+        # show_image(image_np, output_dict, category_index, accuracy)
 
-        # vis_util.visualize_boxes_and_labels_on_image(
-        #     image_np,
-        #     output_dict['detection_boxes'],
-        #     output_dict['detection_classes'],
-        #     output_dict['detection_scores'],
-        #     category_index,
-        #     instance_masks=output_dict.get('detection_masks_reframed', None),
-        #     use_normalized_coordinates=True,
-        #     line_thickness=4,
-        #     min_score_thresh=accuracy)
-        #
-        # cv2.imshow('object_detection', cv2.resize(image_np, (640, 640)))
-        #
-        # while True:
-        #     if cv2.waitKey(1) & 0xFF == ord('q'):
-        #         cv2.destroyAllWindows()
-        #         break
+        return True, make_inference(image_np, output_dict, category_index, accuracy)
 
-        found_boxes = vis_util.get_coordinates_for_tool_found(
-            image_np,
-            output_dict['detection_boxes'],
-            output_dict['detection_classes'],
-            output_dict['detection_scores'],
-            category_index,
-            instance_masks=output_dict.get('detection_masks_reframed', None),
-            use_normalized_coordinates=True,
-            line_thickness=4,
-            min_score_thresh=accuracy)
+    return True, []
 
-        return True, found_boxes
+
+def make_inference_for_vtt(model, timestamp, category_index, accuracy):
+    utils_ops.tf = tf.compat.v1
+    tf.gfile = tf.io.gfile
+
+    cap = cv2.VideoCapture(path.PATH_TO_VIDEOS)
+    cap.set(cv2.CAP_PROP_POS_MSEC, timestamp*1000)
+
+    while cap.isOpened():
+        ret, image_np = cap.read()
+        if not ret:
+            # print("\n[make_inference] returning FALSE\n")
+            return None
+
+        # Actual detection.
+        output_dict = run_inference_for_single_image(model, image_np)
+
+        # Visualization of the results of a detection.
+        # show_image(image_np, output_dict, category_index, accuracy)
+
+        # print("\nCAP RELEASED AND DESTROYED\n")
+        found_tools = make_inference(image_np, output_dict, category_index, accuracy)
+        cap.release()
+        cv2.destroyAllWindows()
+
+        return True, found_tools
+
     return True, []
