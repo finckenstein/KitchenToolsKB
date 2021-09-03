@@ -5,7 +5,7 @@ import time
 def query_concept_net(uri):
     obj = requests.get(uri).json()
     obj.keys()
-    time.sleep(0.5)
+    time.sleep(1)
     return obj['edges']
 
 

@@ -5,14 +5,16 @@ fry,"pan, grill",pan
 sear,"pan, grill",pan
 roast,"pan, grill",pan
 bake,"baking dish, baking sheet, pan, cupcake tin",baking dish
-grill,grill,grill
+grill,"grill, pan",grill
 toss,"bowl, pot, pan, baking sheet, baking dish",bowl
 blend,blender,blender
 mash,bowl,bowl
 preheat,"grill, baking dish, baking sheet, pan, pot",baking sheet
-cut,cutting board,cutting board
 garnish,"bowl, plate",plate
 serve,"bowl, plate",plate
 beat,cutting board,cutting board
 smash,cutting board,cutting board
-hammer,cutting board,cutting board
+hammer,"cutting board, baking sheet, baking dish, pan",cutting board
+trim,"cutting board, baking sheet, baking dish, pan",cutting board
+chop,"cutting board, baking sheet, baking dish, pan",cutting board
+cut,"cutting board, baking sheet, baking dish, pan",cutting board
