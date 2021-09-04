@@ -3,7 +3,7 @@ import database_query as db
 import spacy
 import ast
 import csv
-import apis.concept_net_api as concept_net
+import utility.apis.concept_net_api as concept_net
 from edges.contains import Contains
 
 

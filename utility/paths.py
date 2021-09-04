@@ -6,4 +6,4 @@ coco_labels = '/home/leander/Desktop/automatic_KB_construction/computer_vision/C
 recipes_with_1to1_video = '/home/leander/Desktop/automatic_KB_construction/recipes/db/recipes_with_1to1_video.db'
 all_recipes = '/home/leander/Desktop/automatic_KB_construction/recipes/old_recipes/recipes1.db'
 recipes_with_vid = '/home/leander/Desktop/automatic_KB_construction/recipes/old_recipes/recipes_with_video.db'
-kitchenware = '/home/leander/Desktop/automatic_KB_construction/track_kitchenware/kitchenware.db'
+kitchenware = '/home/leander/Desktop/automatic_KB_construction/utility/track_kitchenware/kitchenware.db'

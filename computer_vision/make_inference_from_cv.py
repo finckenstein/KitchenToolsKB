@@ -91,17 +91,23 @@ def make_inference(image_np, output_dict, category_index, accuracy):
 def make_inference_for_ow(capture, model, fr, category_index, accuracy, get_what):
     frame_id = capture.get(get_what)  # current frame number
     ret, image_np = capture.read()
+
     if not ret:
         return False, []
 
     if frame_id % math.floor(fr) == 0:
+        print("\n\n\nwe are at seconds: ", capture.get(cv2.CAP_PROP_POS_MSEC) / 1000)
         # Actual detection.
         output_dict = run_inference_for_single_image(model, image_np)
 
         # Visualization of the results of a detection.
         # show_image(image_np, output_dict, category_index, accuracy)
 
-        return True, make_inference(image_np, output_dict, category_index, accuracy)
+        detection = make_inference(image_np, output_dict, category_index, accuracy)
+        if len(detection) > 0:
+            return True, detection
+        else:
+            return True, None
     return True, []
 
 
@@ -120,34 +126,5 @@ def make_inference_for_ew(capture, model, fr, category_index, accuracy, get_what
         # show_image(image_np, output_dict, category_index, accuracy)
 
         return True, make_inference(image_np, output_dict, category_index, accuracy)
-
-    return True, []
-
-
-def make_inference_for_vtt(model, timestamp, category_index, accuracy):
-    utils_ops.tf = tf.compat.v1
-    tf.gfile = tf.io.gfile
-
-    cap = cv2.VideoCapture(path.PATH_TO_VIDEOS)
-    cap.set(cv2.CAP_PROP_POS_MSEC, timestamp*1000)
-
-    while cap.isOpened():
-        ret, image_np = cap.read()
-        if not ret:
-            # print("\n[make_inference] returning FALSE\n")
-            return None
-
-        # Actual detection.
-        output_dict = run_inference_for_single_image(model, image_np)
-
-        # Visualization of the results of a detection.
-        # show_image(image_np, output_dict, category_index, accuracy)
-
-        # print("\nCAP RELEASED AND DESTROYED\n")
-        found_tools = make_inference(image_np, output_dict, category_index, accuracy)
-        cap.release()
-        cv2.destroyAllWindows()
-
-        return True, found_tools
 
     return True, []

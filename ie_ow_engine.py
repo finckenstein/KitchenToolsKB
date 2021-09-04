@@ -40,9 +40,9 @@ def open_capture(f, video_id, ow):
         found_tools = inference.make_inference_for_ow(cap, detection_model, frame_rate, category_index, 0.5, 1)
         if not found_tools[0]:
             break
-        elif len(found_tools[1]) > 0:
-            tmp = overlap.check_for_overlapping_tools(found_tools[1])
-            ow.append_data(tmp, video_id)
+        elif found_tools[1] is not None and len(found_tools[1]) > 0:
+            tools_that_overlap = overlap.check_for_overlapping_tools(found_tools[1])
+            ow.append_data(tools_that_overlap, video_id)
 
     cap.release()
     cv2.destroyAllWindows()

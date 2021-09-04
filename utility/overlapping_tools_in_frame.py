@@ -1,12 +1,8 @@
-from utility import partition_tools as pt
-
-
-def is_tool_util(tool):
-    return tool in pt.tools_cv
-
-
-def is_tool_kitchenware(key):
-    return key in pt.kitchenware_cv
+import cv2
+import utility.paths as path
+import utility.partition_tools as pt
+from computer_vision import make_inference_from_cv as inference
+from utility.track_kitchenware.kitchenware import filter_out_none_kitchenware_tools_tuple, get_kitchenware
 
 
 def get_tool(dic):
@@ -55,7 +51,6 @@ def get_overlapping_tools(other_tools_list, current_key, current_tool_dic):
 
 
 def iterate_over_overlapping_tools(overlapping_tools, current_tool, overlapping_tools_in_frame, current_tool_score):
-    print("[iterate_over_overlapping_tools]", current_tool, "overlaps with: ", overlapping_tools)
     did_append = False
     if len(overlapping_tools) >= 1:
 
@@ -67,7 +62,6 @@ def iterate_over_overlapping_tools(overlapping_tools, current_tool, overlapping_
             tuple1 = current_tool, current_tool_score, elem_tool, elem_score
             tuple2 = elem_tool, elem_score, current_tool, current_tool_score
             if tuple1 not in overlapping_tools_in_frame and tuple2 not in overlapping_tools_in_frame:
-                print("appending: ", tuple1)
                 overlapping_tools_in_frame.append(tuple1)
                 did_append = True
     return did_append
@@ -76,7 +70,7 @@ def iterate_over_overlapping_tools(overlapping_tools, current_tool, overlapping_
 def reformat_data(list_of_quad):
     tmp = []
     for qud in list_of_quad:
-        if is_tool_kitchenware(qud[0]) and is_tool_util(qud[2]):
+        if pt.is_tool_kitchenware(qud[0]) and pt.is_tool_util(qud[2]):
             tmp.append((qud[2], qud[3], qud[0], qud[1]))
         else:
             tmp.append(qud)
@@ -84,13 +78,54 @@ def reformat_data(list_of_quad):
 
 
 def check_for_overlapping_tools(found_tools):
-    print("\n\n", found_tools)
     overlapping_tools_in_frame = []
     for current_tool in found_tools:
         for current_key in current_tool:
             overlapping_tools = get_overlapping_tools(found_tools, current_key, current_tool)
             score = current_tool[current_key][1]
             iterate_over_overlapping_tools(overlapping_tools, current_key, overlapping_tools_in_frame, score)
-    print("overlapping tools in frame: ", overlapping_tools_in_frame, "\n\n")
+    print("overlapping tools in frame: ", overlapping_tools_in_frame)
 
     return reformat_data(overlapping_tools_in_frame)
+
+
+def get_cv_tools_in_sequential_order(f, model, category_index):
+    cap = cv2.VideoCapture(path.PATH_TO_VIDEOS + f)
+    frame_rate = cap.get(5)
+    tools_overlap_with_kitchenware = []
+
+    while cap.isOpened():
+        found_tools = inference.make_inference_for_ow(cap, model, frame_rate, category_index, 0.5, 1)
+        if not found_tools[0]:
+            break
+
+        if found_tools[1] is None:
+            print("CV detected tools: ", found_tools[1])
+            print("appending empty array []")
+            tools_overlap_with_kitchenware.append([])
+        elif len(found_tools[1]) > 0:
+            print("CV detected tools: ", found_tools[1])
+            detected_kitchenware = get_kitchenware(found_tools[1])
+            print("detected_kitchenware: ", detected_kitchenware)
+
+            overlapping_tools = check_for_overlapping_tools(found_tools[1])
+            overlapping_tools_are_well_formatted = filter_out_none_kitchenware_tools_tuple(overlapping_tools)
+            print("these overlapping tools are well formatted: ", overlapping_tools_are_well_formatted)
+
+            if len(overlapping_tools_are_well_formatted) > 0:
+                print("appending tool kitchenware tuple: ", overlapping_tools_are_well_formatted)
+                tools_overlap_with_kitchenware.append(overlapping_tools_are_well_formatted)
+            elif len(detected_kitchenware) > 0:
+                print("appending solo kitchenware: ", detected_kitchenware)
+                tools_overlap_with_kitchenware.append(detected_kitchenware)
+            else:
+                print("appending empty array []")
+                tools_overlap_with_kitchenware.append([])
+
+    for elem in tools_overlap_with_kitchenware:
+        print(elem)
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+    return tools_overlap_with_kitchenware

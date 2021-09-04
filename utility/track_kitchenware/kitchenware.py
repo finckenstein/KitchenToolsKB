@@ -1,5 +1,28 @@
 from database_query import KitchenwareI
 from utility.partition_tools import synonymous_kitchenware
+import utility.partition_tools as pt
+
+
+def filter_out_none_kitchenware_tools_tuple(list_of_overlapping_tools):
+    tmp = {}
+
+    for quad in list_of_overlapping_tools:
+        if pt.is_tool_util(quad[0]) and pt.is_tool_kitchenware(quad[2]):
+            tmp[quad[0]] = quad[2]
+        elif pt.is_tool_util(quad[2]) and pt.is_tool_kitchenware(quad[0]):
+            tmp[quad[2]] = quad[0]
+
+    return tmp
+
+
+def get_kitchenware(tools):
+    tmp = {}
+    for elem in tools:
+        for tool_key in elem:
+            print(tool_key, elem[tool_key])
+            if pt.is_tool_kitchenware(tool_key):
+                tmp[tool_key] = []
+    return tmp
 
 
 class Kitchenware:
