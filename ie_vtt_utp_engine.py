@@ -5,7 +5,6 @@ import cv2
 import spacy
 import ast
 import csv
-import math
 
 import database_query as db
 from utility import paths as path, video_utility_functions as vid
@@ -48,15 +47,7 @@ def analyze_sentence(sen, c, s):
                 explicitly_stated = True
                 print(word, " changed kitchenware explicitly to: ", c.kitchenware.cur_kitchenware)
 
-        cv_kitchenware_dict = None
-        print(s.word_counter, math.ceil(s.words_per_second), s.word_counter % math.ceil(s.words_per_second) == 0)
-        if math.ceil(s.word_counter) % math.ceil(s.words_per_second) == 0:
-            cv_kitchenware_dict = s.get_cv_kitchenware()
-            print(cv_kitchenware_dict)
-            s.increment_index()
-            s.increase_counter(math.ceil(s.words_per_second) - s.words_per_second)
-
-        s.word_counter += 1
+        cv_kitchenware_dict = s.get_cv_detected_tool()
 
         print("reached word: ", s.word_counter, " out of: ", s.word_count)
         print("at list index: ", s.list_index, " out of: ", len(s.tools_in_video))

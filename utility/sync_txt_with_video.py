@@ -1,9 +1,7 @@
 import ast
+import math
 
 import database_query as db
-from utility.video_utility_functions import get_video_length
-import utility.paths as path
-from computer_vision.inference_with_KT_model import iterate_over_video
 
 
 def get_number_of_words(preparation, nlp):
@@ -34,15 +32,23 @@ class Sync:
         self.remainder = 0
         self.list_index = 0
 
-    def get_cv_kitchenware(self):
+    def get_tool(self):
         if self.list_index < len(self.tools_in_video):
             return self.tools_in_video[int(self.list_index)]
         else:
             return None
 
-    def increment_index(self):
-        self.list_index += 1
-
     def increase_counter(self, difference):
         self.word_counter += difference
+
+    def get_cv_detected_tool(self):
+        print(self.word_counter, math.ceil(self.words_per_second), self.word_counter % math.ceil(self.words_per_second) == 0)
+        cv_kitchenware_dict = self.get_tool()
+
+        if math.ceil(self.word_counter) % math.ceil(self.words_per_second) == 0:
+            self.list_index += 1
+            self.increase_counter(math.ceil(self.words_per_second) - self.words_per_second)
+
+        self.word_counter += 1
+        return cv_kitchenware_dict
 
