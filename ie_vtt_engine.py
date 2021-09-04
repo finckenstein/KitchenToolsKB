@@ -4,6 +4,7 @@ import os
 import cv2
 import spacy
 import ast
+import csv
 
 import database_query as db
 from utility import paths as path, video_utility_functions as vid
@@ -65,28 +66,29 @@ def parse_recipe(rec, n, container, vtt):
 def filter_out_none_kitchenware_tools_tuple(list_of_overlapping_tools):
     tuple_in_formation = []
     for tools_tuple in list_of_overlapping_tools:
-        if is_tool_kitchenware(tools_tuple[0]) and is_tool_util(tools_tuple[1]):
-            print(is_tool_kitchenware(tools_tuple[0]), is_tool_kitchenware(tools_tuple[1]), tools_tuple,
+        if is_tool_kitchenware(tools_tuple[0]) and is_tool_util(tools_tuple[2]):
+            print(is_tool_kitchenware(tools_tuple[0]), is_tool_kitchenware(tools_tuple[2]), tools_tuple,
                   " in if. It is well formatted. Appended!")
             tuple_in_formation.append(tools_tuple)
-        elif is_tool_kitchenware(tools_tuple[1]) and is_tool_util(tools_tuple[0]):
-            print(is_tool_kitchenware(tools_tuple[1]), is_tool_kitchenware(tools_tuple[0]), tools_tuple,
+        elif is_tool_kitchenware(tools_tuple[2]) and is_tool_util(tools_tuple[0]):
+            print(is_tool_kitchenware(tools_tuple[2]), is_tool_kitchenware(tools_tuple[0]), tools_tuple,
                   " in elif. is well formatted. Appended!")
-            tuple_in_formation.append((tools_tuple[1], tools_tuple[0]))
+            tuple_in_formation.append((tools_tuple[2], tools_tuple[0]))
     return tuple_in_formation
 
 
-def open_capture(f):
+def open_capture(f, video_id):
     cap = cv2.VideoCapture(path.PATH_TO_VIDEOS + f)
     frame_rate = cap.get(5)
     overlapping_tools = []
 
     while cap.isOpened():
-        found_tools = inference.make_inference_for_ow(cap, detection_model, frame_rate, category_index, 0.2, 1)
+        found_tools = inference.make_inference_for_ow(cap, detection_model, frame_rate, category_index, 0.35, 1)
         if not found_tools[0]:
             break
         elif len(found_tools[1]) > 0:
             tmp = check_for_overlapping_tools(found_tools[1])
+
             if len(tmp) > 0:
                 tmp = filter_out_none_kitchenware_tools_tuple(tmp)
                 overlapping_tools.append(tmp)
@@ -105,6 +107,18 @@ def open_capture(f):
     cv2.destroyAllWindows()
 
     print(overlapping_tools)
+    return overlapping_tools
+
+
+def turn_dictionary_into_list(location_tool_combination):
+    node_tuple = []
+    for k in location_tool_combination:
+        node_tuple.append({'Nodes': k,
+                           'Occurrences': location_tool_combination[k][0],
+                           'Accuracy': (location_tool_combination[k][1][0] / location_tool_combination[k][0],
+                                        location_tool_combination[k][1][1] / location_tool_combination[k][0]),
+                           'Video': location_tool_combination[k][2]})
+    return node_tuple
 
 
 if __name__ == '__main__':
@@ -113,18 +127,14 @@ if __name__ == '__main__':
 
     category_index = label_map_util.create_category_index_from_labelmap(path.PATH_TO_LABELS, use_display_name=True)
     detection_model = inference.load_model(path.model_name)
-
-    coco_categories = label_map_util.create_category_index_from_labelmap(path.coco_labels, use_display_name=True)
-    coco_model = inference.load_model(path.coco_name)
-
     files = os.listdir(path.PATH_TO_VIDEOS)
-    recipes = db.sql_fetch_1to1_videos('all')
 
     i = 0
-    for recipe in recipes:
-        if recipe[db.RecipeWithVideoI.VIDEO_ID] == 6:
-            video_file = vid.get_video_file(files, recipe[db.RecipeWithVideoI.VIDEO_ID])
-            open_capture(video_file)
+    for file in files:
+        if '.mp4' in file:
+            vid_id = vid.get_video_id(file)
+            print("VIDEO ID: ", vid_id)
 
-            print("iteration: ", i, " is over. Analyzed video: ", recipe[db.RecipeWithVideoI.VIDEO_ID])
-            i += 1
+            open_capture(file, vid_id)
+
+

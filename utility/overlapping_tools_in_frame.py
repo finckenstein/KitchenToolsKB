@@ -54,30 +54,43 @@ def get_overlapping_tools(other_tools_list, current_key, current_tool_dic):
     return tmp_tools
 
 
-def check_for_overlapping_tools(found_tools):
-    print("\n\n", found_tools)
-    overlapping_tools_in_frame = []
-    for current_tool in found_tools:
-        for current_key in current_tool:
-            overlapping_tools = get_overlapping_tools(found_tools, current_key, current_tool)
-            iterate_over_overlapping_tools(overlapping_tools, current_key, overlapping_tools_in_frame)
-    print("overlapping tools in frame: ", overlapping_tools_in_frame, "\n\n")
-    return overlapping_tools_in_frame
-
-
-def iterate_over_overlapping_tools(overlapping_tools, current_tool, overlapping_tools_in_frame):
+def iterate_over_overlapping_tools(overlapping_tools, current_tool, overlapping_tools_in_frame, current_tool_score):
     print("[iterate_over_overlapping_tools]", current_tool, "overlaps with: ", overlapping_tools)
     did_append = False
     if len(overlapping_tools) >= 1:
 
         for consider_tool in overlapping_tools:
             elem_tool = get_tool(consider_tool)
+            elem_score = consider_tool[elem_tool]
             print(elem_tool)
 
-            tuple1 = current_tool, elem_tool
-            tuple2 = elem_tool, current_tool
+            tuple1 = current_tool, current_tool_score, elem_tool, elem_score
+            tuple2 = elem_tool, elem_score, current_tool, current_tool_score
             if tuple1 not in overlapping_tools_in_frame and tuple2 not in overlapping_tools_in_frame:
                 print("appending: ", tuple1)
                 overlapping_tools_in_frame.append(tuple1)
                 did_append = True
     return did_append
+
+
+def reformat_data(list_of_quad):
+    tmp = []
+    for qud in list_of_quad:
+        if is_tool_kitchenware(qud[0]) and is_tool_util(qud[2]):
+            tmp.append((qud[2], qud[3], qud[0], qud[1]))
+        else:
+            tmp.append(qud)
+    return tmp
+
+
+def check_for_overlapping_tools(found_tools):
+    print("\n\n", found_tools)
+    overlapping_tools_in_frame = []
+    for current_tool in found_tools:
+        for current_key in current_tool:
+            overlapping_tools = get_overlapping_tools(found_tools, current_key, current_tool)
+            score = current_tool[current_key][1]
+            iterate_over_overlapping_tools(overlapping_tools, current_key, overlapping_tools_in_frame, score)
+    print("overlapping tools in frame: ", overlapping_tools_in_frame, "\n\n")
+
+    return reformat_data(overlapping_tools_in_frame)
