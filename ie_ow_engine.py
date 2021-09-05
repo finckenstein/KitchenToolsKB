@@ -42,7 +42,7 @@ def open_capture(f, video_id, ow):
             break
         elif found_tools[1] is not None and len(found_tools[1]) > 0:
             tools_that_overlap = overlap.check_for_overlapping_tools(found_tools[1])
-            ow.append_data(tools_that_overlap, video_id)
+            ow.append_single_verb(tools_that_overlap, video_id)
 
     cap.release()
     cv2.destroyAllWindows()

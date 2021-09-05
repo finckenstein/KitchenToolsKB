@@ -16,9 +16,8 @@ from computer_vision.tensorflow_object_detection_utils import label_map_util
 from edges.contains import Contains
 from utility.sync_txt_with_video import Sync
 
-
-def is_verb_or_pronoun(token):
-    return token.pos_ == "VERB" or token.pos_ == "PRON"
+def is_verb(token):
+    return token.pos_ == "VERB"
 
 
 def is_noun(token):
@@ -30,6 +29,8 @@ def analyze_sentence(sen, c, s):
     explicitly_stated = False
     implicitly_stated = False
     current_verb = None
+    verbs_in_sentence = []
+    foods = []
 
     while sentence_i < len(sen):
         token = sen[sentence_i]
@@ -37,11 +38,12 @@ def analyze_sentence(sen, c, s):
 
         print("\n\nNEW WORD: ", word)
 
-        if is_verb_or_pronoun(token):
+        if is_verb(token):
             if c.kitchenware.check_verb_to_verify_implied_kitchenware(word):
                 implicitly_stated = True
                 print(word, " changed kitchenware implicitly to: ", c.kitchenware.cur_kitchenware)
             current_verb = word
+            verbs_in_sentence.append(word)
         elif is_noun(token):
             if c.kitchenware.check_explicit_change_in_kitchenware(token, word, sen, sentence_i):
                 explicitly_stated = True
@@ -53,8 +55,8 @@ def analyze_sentence(sen, c, s):
         print("at list index: ", s.list_index, " out of: ", len(s.tools_in_video))
 
         # TODO: implement edge cases e.g. len(cv_kitchenware_dict.keys()) >= 2, len(cv_kitchenware_dict.keys()) == 0
-
         print("\ncv_kitchenware_dict:", cv_kitchenware_dict)
+        print("text kitchenware: ", c.kitchenware.cur_kitchenware)
 
         sentence_i += 1
 
@@ -86,17 +88,14 @@ if __name__ == '__main__':
     i = 1
 
     for recipe in recipe_rows:
-        if recipe[db.RecipeWithVideoI.VIDEO_ID] == 0:
+        if recipe[db.RecipeWithVideoI.VIDEO_ID] == 1:
             video_file = vid.get_video_file(files, recipe[db.RecipeWithVideoI.VIDEO_ID])
             print("VIDEO ID: ", recipe[db.RecipeWithVideoI.VIDEO_ID], " for recipe: ", recipe[db.RecipeWithVideoI.URL])
 
             # cv_detected_kitchenware_per_second_of_vid = overlapping_tools.get_cv_tools_in_sequential_order(
-            #     video_file, model, category_index)
-            cv_detected_kitchenware_per_second_of_vid = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], {'blender': []}, [], {'blender': []}, [], [], {'blender': []}, {'blender': []}, {'blender': []}, {'blender': []}, {'whisk': 'blender'}, [], [], [], [], [], [], [], [], {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'bowl': [], 'baking-sheet': []}, {'bowl': [], 'baking-sheet': []}, [], [], [], [], [], [], [], [], {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, [], [], [], {'bowl': [], 'baking-sheet': []}, {'bowl': [], 'baking-sheet': []}, {'bowl': [], 'baking-sheet': []}, {'bowl': []}, {'bowl': []}, {'oven-glove': 'baking-sheet'}, {'oven-glove': 'baking-sheet'}, {'tongs': 'baking-sheet'}, {'tongs': 'baking-sheet'}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'plate': []}, [], {'bowl': []}, {'bowl': []}, {'plate': []}, {'plate': []}, [], [], [], [], {'plate': []}, {'plate': []}, {'plate': []}, {'plate': []}, [], [], [], [], [], [], [], [], [], [], [], []]
-
-            # video 6: cv_detected_kitchenware_per_second_of_vid = [{'cutting-board': []}, {'cutting-board': []}, {'cutting-board': []}, {'cutting-board': []}, {'cutting-board': []}, {'pot': []}, {'jug': 'pot'}, {'pot': []}, {'pot': []}, {'pot': []}, {'pot': []}, {'pot': []}, {'pot': []}, {'pot': []}, {'pot': []}, {'pot': []}, {'tongs': 'pot'}, {'jug': 'pot'}, [], [], {'lid': 'pot'}, {'tongs': 'pot'}, {'tongs': 'pot'}, {'pot': [], 'bowl': []}, {'pot': []}, {'pot': []}, {'pot': [], 'bowl': []}, {'pot': []}, {'tongs': 'pot'}, {'pot': []}, {'pot': []}, [], {'pot': []}, {'lepel': 'pot'}, [], {'plate': []}, {'plate': []}, {'plate': []}, {'plate': []}, {'plate': []}, [], [], {'plate': []}, [], [], [], []]
-            # video 86: [{'bowl': []}, {'bowl': []}, {'whisk': 'bowl'}, [], [], {'bowl': []}, {'bowl': []}, {'bowl': []}, {'bowl': []}, {'whisk': 'bowl'}, {'bowl': []}, {'bowl': []}, {'bowl': []}, [], [], [], [], [], [], [], [], [], [], [], [], {'baking-sheet': []}, [], [], [], [], [], {'pinch-bowl': 'bowl'}, {'pinch-bowl': 'bowl'}, {'pinch-bowl': 'bowl'}, {'pinch-bowl': 'bowl'}, {'pinch-bowl': 'bowl', 'turner': 'pan'}, {'pinch-bowl': 'bowl'}, {'pinch-bowl': 'bowl'}, {'pinch-bowl': 'bowl'}, {'pinch-bowl': 'bowl'}, [], [], {'turner': 'pan'}, {'pan': [], 'bowl': []}, {'pan': [], 'bowl': []}, {'pan': [], 'bowl': []}, {'pan': [], 'bowl': []}, {'pan': [], 'bowl': []}, {'pan': [], 'bowl': []}, {'pan': [], 'bowl': []}, [], [], {'pinch-bowl': 'pan'}, {'silicone-spatula': 'bowl'}, {'pinch-bowl': 'bowl'}, {'bowl': []}, {'bowl': []}, {'bowl': []}, {'bowl': []}, {'bowl': []}, {'bowl': []}, {'pinch-bowl': 'pan'}, [], [], [], [], [], [], [], [], [], [], [], [], [], [], {'bowl': []}, {'bowl': []}, {'whisk': 'bowl'}, {'whisk': 'bowl'}, {'bowl': []}, {'bowl': []}, [], [], [], [], [], [], [], {'plate': []}, [], [], [], [], [], [], {'bowl': []}, {'bowl': []}, {'bowl': []}, {'bowl': []}, {'bowl': []}]
-            # video 0: [[], [], [], [], [], [], [], [], [], [], [], [], [], [], {'blender': []}, [], {'blender': []}, [], [], {'blender': []}, {'blender': []}, {'blender': []}, {'blender': []}, {'whisk': 'blender'}, [], [], [], [], [], [], [], [], {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'bowl': [], 'baking-sheet': []}, {'bowl': [], 'baking-sheet': []}, [], [], [], [], [], [], [], [], {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, [], [], [], {'bowl': [], 'baking-sheet': []}, {'bowl': [], 'baking-sheet': []}, {'bowl': [], 'baking-sheet': []}, {'bowl': []}, {'bowl': []}, {'oven-glove': 'baking-sheet'}, {'oven-glove': 'baking-sheet'}, {'tongs': 'baking-sheet'}, {'tongs': 'baking-sheet'}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'baking-sheet': [], 'bowl': []}, {'plate': []}, [], {'bowl': []}, {'bowl': []}, {'plate': []}, {'plate': []}, [], [], [], [], {'plate': []}, {'plate': []}, {'plate': []}, {'plate': []}, [], [], [], [], [], [], [], [], [], [], [], []]
+            #      video_file, model, category_index)
+            cv_detected_kitchenware_per_second_of_vid = [{'pan': ''}, [], [], [], {'plate': ''}, {'pan': '', 'plate': ''}, [], {None: ['turner']}, [], {None: ['turner']}, [], [], [], {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': 'silicone-spatula'}, {'pan': ''}, {'pan': ''}, {'pan': ''}, [], [], [], [], {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': 'measuring-cup'}, {'pan': ''}, {'pan': ''}, [], {None: ['turner']}, [], {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, [], [], [], {'pan': ''}, {'pan': ''}, {'pan': ''}, [], [], [], {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, [], [], [], [], [], {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': 'pinch-bowl'}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, [], [], [], [], [], [], {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': 'silicone-spatula'}, {'pan': ''}, {'pan': ''}, {'pan': ''}, [], [], [], [], [], {'bowl': 'silicone-spatula'}, {'bowl': ''}, {'bowl': ''}, {None: ['sieve']}, [], {'pan': ''}, {'pan': ''}, [], [], {None: ['jug']}, {None: ['skimmer']}, {None: ['skimmer']}, {None: ['sieve']}, [], [], {'plate': ''}, [], [], [], [], [], [], [], [], [], [], {'bowl': ''}, [], {'plate': ''}, {'plate': ''}, {'plate': ''}, [], [], [], {None: ['turner']}, [], [], [], [], [], [], [], [], [], []]
+            # video 1: {'pan': ''}, [], [], [], {'plate': ''}, {'pan': '', 'plate': ''}, [], {None: ['turner']}, [], {None: ['turner']}, [], [], [], {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': 'silicone-spatula'}, {'pan': ''}, {'pan': ''}, {'pan': ''}, [], [], [], [], {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': 'measuring-cup'}, {'pan': ''}, {'pan': ''}, [], {None: ['turner']}, [], {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, [], [], [], {'pan': ''}, {'pan': ''}, {'pan': ''}, [], [], [], {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, [], [], [], [], [], {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': 'pinch-bowl'}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, [], [], [], [], [], [], {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': ''}, {'pan': 'silicone-spatula'}, {'pan': ''}, {'pan': ''}, {'pan': ''}, [], [], [], [], [], {'bowl': 'silicone-spatula'}, {'bowl': ''}, {'bowl': ''}, {None: ['sieve']}, [], {'pan': ''}, {'pan': ''}, [], [], {None: ['jug']}, {None: ['skimmer']}, {None: ['skimmer']}, {None: ['sieve']}, [], [], {'plate': ''}, [], [], [], [], [], [], [], [], [], [], {'bowl': ''}, [], {'plate': ''}, {'plate': ''}, {'plate': ''}, [], [], [], {None: ['turner']}, [], [], [], [], [], [], [], [], [], []]
             print(len(cv_detected_kitchenware_per_second_of_vid), cv_detected_kitchenware_per_second_of_vid)
 
             sync = Sync(recipe, nlp, cv_detected_kitchenware_per_second_of_vid)

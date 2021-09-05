@@ -22,8 +22,8 @@ def get_number_of_words(preparation, nlp):
 
 class Sync:
     def __init__(self, recipe, nlp, history_of_tools_in_video):
-        video_duration = len(history_of_tools_in_video)
-        self.word_count = get_number_of_words(recipe[db.RecipeWithVideoI.PREPARATION], nlp)
+        video_duration = len(history_of_tools_in_video) - 1
+        self.word_count = get_number_of_words(recipe[db.RecipeWithVideoI.PREPARATION], nlp) - 2
         self.words_per_second = self.word_count / video_duration
         print("words_per_seconds: ", self.words_per_second)
 

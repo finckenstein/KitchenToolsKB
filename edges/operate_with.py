@@ -22,5 +22,5 @@ class OperateWith:
         self.location_tool_combination[tuple_format][1][0] += score1
         self.location_tool_combination[tuple_format][1][1] += score2
         if vid_file not in self.location_tool_combination[tuple_format][2]:
-            self.location_tool_combination[tuple_format][2].append(vid_file)
+            self.location_tool_combination[tuple_format][2].append_list_of_verbs(vid_file)
         print("incremented occurrence for tuple: ", tuple_format, self.location_tool_combination[tuple_format])

@@ -1,4 +1,3 @@
-from utility.track_kitchenware.kitchenware import Kitchenware
 from utility.partition_tools import synonymous_kitchenware
 
 
@@ -25,8 +24,7 @@ def get_total_sum(list_of_tuples):
 
 
 class Contains:
-    def __init__(self, kitchenware_from_db):
-        self.kitchenware = Kitchenware(kitchenware_from_db)
+    def __init__(self):
         self.contains = {}
 
         for key in synonymous_kitchenware:
@@ -35,42 +33,32 @@ class Contains:
 
         self.all_data = []
 
-    def append_data(self, concept_food, word):
-        if self.kitchenware.cur_kitchenware is None:
+    def append_concepts_sequentially(self, concepts, food, cur_kitchenware):
+        for concept in concepts:
+            self.append_data(concept, food, cur_kitchenware)
+
+    def append_data(self, concept_food, word, cur_kitchenware):
+        if cur_kitchenware is None:
             return
-        for dic in self.contains[self.kitchenware.cur_kitchenware]:
+
+        for dic in self.contains[cur_kitchenware]:
             for concept_key in dic:
                 if concept_key == concept_food:
-                    self.append_new_food_to_existing_concept(concept_key, word)
+                    self.concept_is_stored(cur_kitchenware, concept_key, word)
                     return
 
-        print("[append_data] for kitchenware: ", self.kitchenware.cur_kitchenware,
-              " created new concept key: ", concept_food, " and added new word: ", word)
-        self.contains[self.kitchenware.cur_kitchenware][concept_food] = [(word, 1)]
+        self.contains[cur_kitchenware][concept_food] = [(word, 1)]
 
-    def append_new_food_to_existing_concept(self, concept_key, word):
-        if self.kitchenware.cur_kitchenware is not None:
-            print("[append_new_food_to_existing_concept] for kitchenware: ", self.kitchenware.cur_kitchenware,
-                  " appended: ", word, " to existing concept: ", concept_key)
-            self.contains[self.kitchenware.cur_kitchenware][concept_key].append(word, 1)
+    def concept_is_stored(self, cur_kitchenware, concept_key, word):
+        index = 0
+        for food_tuple in self.contains[cur_kitchenware][concept_key]:
+            if food_tuple[0] == word:
+                food_counter = self.contains[cur_kitchenware][concept_key][index][1] + 1
+                self.contains[cur_kitchenware][concept_key][index] = (word, food_counter)
+                return
+            index += 1
 
-    def is_word_stored(self, word):
-        for kitchenware in self.contains:
-            for concept_key in self.contains[kitchenware]:
-                index = 0
-                for food_tuple in self.contains[kitchenware][concept_key]:
-                    if food_tuple[0] == word:
-                        self.increment_occurrence_of_word(kitchenware, concept_key, index, word)
-                        print("[is_word_stored] for kitchenware: ", kitchenware,
-                              " incremented occurrence of word: ", word, " to: ",
-                              self.contains[kitchenware][concept_key][index][1])
-                        return True
-                    index += 1
-        return False
-
-    def increment_occurrence_of_word(self, kitchenware, concept_key, index, word):
-        counter = self.contains[kitchenware][concept_key][index][1] + 1
-        self.contains[kitchenware][concept_key][index] = (word, counter)
+        self.contains[cur_kitchenware][concept_key].append_list_of_verbs(word, 1)
 
     def get_sum_food_occurrences_in_concept(self, k, c):
         summation = 0

@@ -23,7 +23,7 @@ def fetch_other_most_occurring_tools(most_occurring_tool, dicti):
     other_tools = most_occurring_tool
     for tool in dicti:
         if most_occurring_tool[1] == len(dicti[tool]) and most_occurring_tool[0] != tool:
-            other_tools.append((tool, fetch_average(tool, dicti)))
+            other_tools.append_list_of_verbs((tool, fetch_average(tool, dicti)))
     return other_tools
 
 
@@ -47,7 +47,7 @@ class EatenWith:
                 if tool_key in pt.cutlery_cv:
                     self.last_detected_cutlery = tool_key, tool[tool_key][1]
                     if tool_key in self.cutlery:
-                        self.cutlery[tool_key].append(tool[tool_key][1])
+                        self.cutlery[tool_key].append_list_of_verbs(tool[tool_key][1])
                         print("[filter_out_none_cutlery] appended for: ", tool_key, len(self.cutlery[tool_key]))
                     else:
                         self.cutlery[tool_key] = [tool[tool_key][1]]
@@ -55,7 +55,7 @@ class EatenWith:
                 elif tool_key in pt.eating_kitchenware_cv:
                     self.last_detected_container = tool_key, tool[tool_key][1]
                     if tool_key in self.container:
-                        self.container[tool_key].append(tool[tool_key][1])
+                        self.container[tool_key].append_list_of_verbs(tool[tool_key][1])
                         print("[filter_out_none_cutlery] appended for: ", tool_key, len(self.container[tool_key]))
                     else:
                         self.container[tool_key] = [tool[tool_key][1]]
