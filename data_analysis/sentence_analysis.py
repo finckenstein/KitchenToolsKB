@@ -5,9 +5,11 @@ nlp = spacy.load("en_core_web_trf")
 
 
 if __name__ == "__main__":
-    string = "While the cauliflower is baking, make the sauce: Heat the canola oil in a medium skillet over medium heat."
+    string = "make sure to be on time."
     step = nlp(string)
     sentences = list(step.sents)
+    str = ''
+
 
     for sentence in sentences:
         for token in sentence:

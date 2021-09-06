@@ -2,7 +2,6 @@ import cv2
 import utility.paths as path
 import utility.partition_tools as pt
 from computer_vision import make_inference_from_cv as inference
-from utility.track_kitchenware.kitchenware import filter_out_none_kitchenware_tools_tuple
 
 
 def get_tool(dic):
@@ -57,12 +56,12 @@ def iterate_over_overlapping_tools(overlapping_tools, current_tool, overlapping_
         for consider_tool in overlapping_tools:
             elem_tool = get_tool(consider_tool)
             elem_score = consider_tool[elem_tool]
-            print(elem_tool)
+            # print(elem_tool)
 
             tuple1 = current_tool, current_tool_score, elem_tool, elem_score
             tuple2 = elem_tool, elem_score, current_tool, current_tool_score
             if tuple1 not in overlapping_tools_in_frame and tuple2 not in overlapping_tools_in_frame:
-                overlapping_tools_in_frame.append_list_of_verbs(tuple1)
+                overlapping_tools_in_frame.append(tuple1)
                 did_append = True
     return did_append
 
@@ -100,9 +99,29 @@ def filter_out_duplicate_kitchenware_in_overlapping(kitchenware_dic, overlapping
 def filter_out_duplicate_utils_in_overlapping(utils_dic, overlapping):
     tmp = []
     for kitchenware_key in overlapping:
-        if overlapping[kitchenware_key] not in utils_dic[None]:
-            tmp.append(overlapping[kitchenware_key])
+        for utensil in overlapping[kitchenware_key]:
+            if utensil not in utils_dic[None]:
+                tmp.append(utensil)
     return {None: tmp}
+
+
+def append_to_dictionary(dic, container, utensil):
+    if container in dic and utensil not in dic[container]:
+        dic[container].append(utensil)
+    else:
+        dic[container] = [utensil]
+
+
+def filter_out_none_kitchenware_tools_tuple(list_of_overlapping_tools):
+    tmp = {}
+
+    for quad in list_of_overlapping_tools:
+        if pt.is_tool_kitchenware(quad[0]) and pt.is_tool_util(quad[2]):
+            append_to_dictionary(tmp, quad[0], quad[2])
+        elif pt.is_tool_kitchenware(quad[2]) and pt.is_tool_util(quad[0]):
+            append_to_dictionary(tmp, quad[2], quad[0])
+
+    return tmp
 
 
 def cv_detected_tools(found_tools, tools_overlap_with_kitchenware):
@@ -112,7 +131,7 @@ def cv_detected_tools(found_tools, tools_overlap_with_kitchenware):
     print("detected_kitchenware: ", detected_kitchenware)
 
     detected_utils = pt.get_utils(found_tools)
-    print("detected utils: ", detected_utils)
+    print("detected utensils: ", detected_utils)
 
     overlapping_tools = check_for_overlapping_tools(found_tools)
     well_formatted_overlapping_tools = filter_out_none_kitchenware_tools_tuple(overlapping_tools)
@@ -121,27 +140,29 @@ def cv_detected_tools(found_tools, tools_overlap_with_kitchenware):
     if len(well_formatted_overlapping_tools) > 0:
         detected_kitchenware = filter_out_duplicate_kitchenware_in_overlapping(detected_kitchenware,
                                                                                well_formatted_overlapping_tools)
+        print("filtered out kitchenware: ", detected_kitchenware)
         detected_utils = filter_out_duplicate_utils_in_overlapping(detected_utils,
                                                                    well_formatted_overlapping_tools)
+        print("filtered out utensil: ", detected_utils)
         to_append = well_formatted_overlapping_tools
         to_append.update(detected_kitchenware)
         if len(detected_utils[None]) > 0:
             to_append.update(detected_utils)
-        tools_overlap_with_kitchenware.append_list_of_verbs(to_append)
+        tools_overlap_with_kitchenware.append(to_append)
         print("branch 1 appended: ", to_append)
     elif len(detected_kitchenware) > 0 and len(detected_utils[None]) > 0:
         to_append = detected_kitchenware
         to_append.update(detected_utils)
-        tools_overlap_with_kitchenware.append_list_of_verbs(to_append)
+        tools_overlap_with_kitchenware.append(to_append)
         print("branch 2 appended: ", to_append)
     elif len(detected_kitchenware) > 0:
-        tools_overlap_with_kitchenware.append_list_of_verbs(detected_kitchenware)
+        tools_overlap_with_kitchenware.append(detected_kitchenware)
         print("branch 3 appended: ", detected_kitchenware)
     elif len(detected_utils[None]) > 0:
-        tools_overlap_with_kitchenware.append_list_of_verbs(detected_utils)
+        tools_overlap_with_kitchenware.append(detected_utils)
         print("branch 4 appended: ", detected_utils)
     else:
-        tools_overlap_with_kitchenware.append_list_of_verbs([])
+        tools_overlap_with_kitchenware.append({})
         print("branch 5 appended empty list")
 
 
@@ -150,14 +171,15 @@ def get_cv_tools_in_sequential_order(f, model, category_index):
     frame_rate = cap.get(5)
     tools_overlap_with_kitchenware = []
 
+    print("IN [get_cv_tools_in_sequential_order]")
     while cap.isOpened():
         found_tools = inference.make_inference_for_ow(cap, model, frame_rate, category_index, 0.5, 1)
         if not found_tools[0]:
             break
 
         if found_tools[1] is None:
-            print("appending empty array []")
-            tools_overlap_with_kitchenware.append([])
+            print("nothing was detected. appending empty array {}")
+            tools_overlap_with_kitchenware.append({})
         elif len(found_tools[1]) > 0:
             cv_detected_tools(found_tools[1], tools_overlap_with_kitchenware)
 

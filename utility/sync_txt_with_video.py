@@ -42,7 +42,6 @@ class Sync:
         self.word_counter += difference
 
     def get_cv_detected_tool(self):
-        print(self.word_counter, math.ceil(self.words_per_second), self.word_counter % math.ceil(self.words_per_second) == 0)
         cv_kitchenware_dict = self.get_tool()
 
         if math.ceil(self.word_counter) % math.ceil(self.words_per_second) == 0:

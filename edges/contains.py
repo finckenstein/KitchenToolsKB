@@ -23,6 +23,13 @@ def get_total_sum(list_of_tuples):
     return summation
 
 
+def get_foods(tuple_list):
+    tmp = []
+    for food_tuple in tuple_list:
+        tmp.append(food_tuple[0])
+    return tmp
+
+
 class Contains:
     def __init__(self):
         self.contains = {}
@@ -34,13 +41,13 @@ class Contains:
         self.all_data = []
 
     def append_concepts_sequentially(self, concepts, food, cur_kitchenware):
+        if cur_kitchenware is None:
+            return
+
         for concept in concepts:
             self.append_data(concept, food, cur_kitchenware)
 
     def append_data(self, concept_food, word, cur_kitchenware):
-        if cur_kitchenware is None:
-            return
-
         for dic in self.contains[cur_kitchenware]:
             for concept_key in dic:
                 if concept_key == concept_food:
@@ -76,7 +83,10 @@ class Contains:
         tmp = []
         for concepts in self.contains[k]:
             for food_tuple in self.contains[k][concepts]:
-                tmp.append(food_tuple)
+                if food_tuple[0] not in get_foods(tmp):
+                    tmp.append(food_tuple)
+                else:
+                    tmp[tmp.index(food_tuple)] = (food_tuple[0], food_tuple[1]+1)
         return tmp
 
     def analyze_and_convert_data(self):

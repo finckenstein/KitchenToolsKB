@@ -10,13 +10,16 @@ cutlery_cv = ['fork', 'knife', 'spoon', 'chopsticks']
 
 eating_kitchenware_cv = ['bowl', 'plate']
 
-synonymous_kitchenware = {'pan': ['skillet'],
-                          'pot': ['saucepan'],
-                          'baking dish': ['foil dish', 'casserole', 'baking form'],
-                          'baking sheet': ['sheet pan', 'baking rack'],
-                          'grill': ['griddle', 'barbecue', 'bbq'],
-                          'blender': [], 'cupcake tin': [], 'cutting board': [],
-                          'bowl': ['food container'], 'plate': []}
+synonymous_kitchenware = {'pan': ['skillet'], #914 + 359 = 1273
+                          'pot': ['saucepan'], #584 + 193 = 777
+                          'baking dish': ['foil dish', 'casserole', 'baking form'], #121 + 1 + 14 + 0 = 136
+                          'baking sheet': ['sheet pan', 'baking rack'], #449 + 20 + 9 = 478
+                          'grill': ['griddle', 'barbecue', 'bbq'], #42 + 19 + 15 + 5 = 81
+                          'blender': [], # 210
+                          'cupcake tin': [], #1
+                          'cutting board': [], #111
+                          'bowl': ['food container'], #1199 + 0 = 1199
+                          'plate': []} #166
 
 
 def is_tool_util(tool):
@@ -31,7 +34,6 @@ def get_partitioning_of_tools(cv_tools, func):
     tmp = []
     for elem in cv_tools:
         for tool_key in elem:
-            print(tool_key, elem[tool_key])
             if func(tool_key):
                 tmp.append(tool_key)
     return tmp

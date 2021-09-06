@@ -13,7 +13,7 @@ def write_container_to_csv(data, filename):
 
 
 def write_verbs_to_describe_to_csv(tool_or_food, data, filename):
-    fields = [tool_or_food, 'Verbs', 'Top 3 Verbs', 'Antonyms']
+    fields = [tool_or_food, 'Verbs', 'Top 3 Verbs', 'Antonyms', 'Antonyms of Top 3']
     with open(filename, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fields)
         writer.writeheader()
