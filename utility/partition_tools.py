@@ -35,7 +35,7 @@ def get_partitioning_of_tools(cv_tools, func):
     for elem in cv_tools:
         for tool_key in elem:
             if func(tool_key):
-                tmp.append(tool_key)
+                tmp.append((tool_key, elem[tool_key][1]))
     return tmp
 
 
@@ -43,10 +43,21 @@ def get_kitchenware(tools):
     kitchenware = get_partitioning_of_tools(tools, is_tool_kitchenware)
     tmp = {}
     for kit in kitchenware:
-        tmp[kit] = ''
+        tmp[kit[0]] = ''
+    return tmp
+
+
+def filter_out_duplicates(tmp_utensil):
+    tmp = {}
+    for tup in tmp_utensil:
+        if tup[0] not in tmp:
+            tmp[tup[0]] = tup[1]
+        elif tmp[tup[0]] < tup[1]:
+            tmp[tup[0]] = tup[1]
     return tmp
 
 
 def get_utils(cv_detected):
-    utils = get_partitioning_of_tools(cv_detected, is_tool_util)
-    return {None: utils}
+    tmp_utensil = get_partitioning_of_tools(cv_detected, is_tool_util)
+    utensil = filter_out_duplicates(tmp_utensil)
+    return {None: utensil}

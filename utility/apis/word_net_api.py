@@ -39,3 +39,14 @@ def antonyms_of_top_three(verbs):
                         antonyms_of_tool.append(antonym)
     return antonyms_of_tool
 
+
+def get_antonyms_from_dic(verbs_dic):
+    antonyms_of_tool = []
+    for verb_key in verbs_dic:
+        for syn in wordnet.synsets(verb_key):
+            for l in syn.lemmas():
+                if l.antonyms():
+                    antonym = l.antonyms()[0].name()
+                    if not tuple_stored(antonym, verb_key, antonyms_of_tool):
+                        antonyms_of_tool.append((antonym, verb_key, verbs_dic[verb_key]))
+    return antonyms_of_tool

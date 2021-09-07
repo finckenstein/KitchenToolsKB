@@ -24,8 +24,7 @@ def get_concept(noun):
 class TrackConceptsFound:
     def __init__(self):
         self.noun_to_concepts = {}
-        self.concepts_in_sentence = []
-        self.foods_in_sentence = []
+        self.foods_in_sentence = {}
 
     def get_concepts_for_noun(self, noun):
         if noun in self.noun_to_concepts:
@@ -34,12 +33,9 @@ class TrackConceptsFound:
             return None
 
     def update_tracking(self, noun, concepts):
+        assert noun not in self.noun_to_concepts, "noun should not yet be in noun_to_concepts"
         self.noun_to_concepts[noun] = concepts
 
-    def append_food_concepts_to_sentence(self, concepts):
-        for concept in concepts:
-            self.concepts_in_sentence.append(concept)
-
-    def append_food_to_sentence(self, food):
-        self.foods_in_sentence.append(food)
-
+    def update_concepts_in_sentence(self, noun, concepts):
+        if noun not in self.foods_in_sentence:
+            self.foods_in_sentence[noun] = concepts

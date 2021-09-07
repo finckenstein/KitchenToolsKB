@@ -97,19 +97,31 @@ def filter_out_duplicate_kitchenware_in_overlapping(kitchenware_dic, overlapping
 
 
 def filter_out_duplicate_utils_in_overlapping(utils_dic, overlapping):
-    tmp = []
+    utensils_in_overlapping = {}
     for kitchenware_key in overlapping:
         for utensil in overlapping[kitchenware_key]:
-            if utensil not in utils_dic[None]:
-                tmp.append(utensil)
-    return {None: tmp}
+            assert (utensil in utensils_in_overlapping
+                    and utensils_in_overlapping[utensil] == overlapping[kitchenware_key][utensil],
+                    "accuracy should be the same")
+            utensils_in_overlapping[utensil] = overlapping[kitchenware_key][utensil]
+
+    unique_utensils = {}
+    for utensil in utils_dic[None]:
+        if utensil not in utensils_in_overlapping:
+            unique_utensils[utensil] = utils_dic[None][utensil]
+
+    return {None: unique_utensils}
 
 
-def append_to_dictionary(dic, container, utensil):
-    if container in dic and utensil not in dic[container]:
-        dic[container].append(utensil)
+def append_to_dictionary(dic, container, utensil, utensil_accuracy):
+    if container in dic:
+        if utensil not in dic[container]:
+            dic[container][utensil] = utensil_accuracy
+        elif utensil_accuracy > dic[container][utensil]:
+            dic[container][utensil] = utensil_accuracy
     else:
-        dic[container] = [utensil]
+        dic[container] = {}
+        dic[container][utensil] = utensil_accuracy
 
 
 def filter_out_none_kitchenware_tools_tuple(list_of_overlapping_tools):
@@ -117,9 +129,9 @@ def filter_out_none_kitchenware_tools_tuple(list_of_overlapping_tools):
 
     for quad in list_of_overlapping_tools:
         if pt.is_tool_kitchenware(quad[0]) and pt.is_tool_util(quad[2]):
-            append_to_dictionary(tmp, quad[0], quad[2])
+            append_to_dictionary(tmp, quad[0], quad[2], quad[3])
         elif pt.is_tool_kitchenware(quad[2]) and pt.is_tool_util(quad[0]):
-            append_to_dictionary(tmp, quad[2], quad[0])
+            append_to_dictionary(tmp, quad[2], quad[0], quad[1])
 
     return tmp
 
@@ -173,7 +185,7 @@ def get_cv_tools_in_sequential_order(f, model, category_index):
 
     print("IN [get_cv_tools_in_sequential_order]")
     while cap.isOpened():
-        found_tools = inference.make_inference_for_ow(cap, model, frame_rate, category_index, 0.5, 1)
+        found_tools = inference.make_inference_for_ow(cap, model, frame_rate, category_index, 0.4, 1)
         if not found_tools[0]:
             break
 

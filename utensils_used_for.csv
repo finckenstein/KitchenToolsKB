@@ -1,0 +1,10 @@
+Utensil,Accuracy,Counter,CV Container Matches Txt Container,Overlaps,Verbs,Top 3 Verbs,Antonyms,Top 3 Antonym
+sieve,49.90909090909091,11,0,0,"{'preheat': 1, 'line': 1, 'combine': 1, 'place': 1, 'prepare': 1, 'brush': 1, 'divide': 1, 'desire': 1, 'garnish': 1, 'serve': 1}","[{'Verbs': 'preheat', 'Counter': 1}, {'Verbs': 'line', 'Counter': 1}, {'Verbs': 'combine', 'Counter': 1}]","[('divest', 'place', 1), ('unite', 'divide', 1), ('multiply', 'divide', 1)]",
+turner,40.333333333333336,3,0,0,"{'preheat': 1, 'line': 1, 'place': 1, 'prepare': 1, 'brush': 1}","[{'Verbs': 'preheat', 'Counter': 1}, {'Verbs': 'line', 'Counter': 1}, {'Verbs': 'place', 'Counter': 1}]","[('divest', 'place', 1)]",
+whisk,52.8125,16,0,0,"{'preheat': 1, 'line': 1, 'combine': 1, 'divide': 1, 'desire': 1, 'garnish': 1, 'serve': 1}","[{'Verbs': 'preheat', 'Counter': 1}, {'Verbs': 'line', 'Counter': 1}, {'Verbs': 'combine', 'Counter': 1}]","[('unite', 'divide', 1), ('multiply', 'divide', 1)]",
+pinch-bowl,46.25,4,0,0,"{'preheat': 1, 'line': 1, 'lay': 1}","[{'Verbs': 'preheat', 'Counter': 1}, {'Verbs': 'line', 'Counter': 1}, {'Verbs': 'lay', 'Counter': 1}]","[('stand', 'lay', 1), ('arise', 'lay', 1)]",
+jar,41.0,2,0,0,"{'preheat': 1, 'line': 1}","[{'Verbs': 'preheat', 'Counter': 1}, {'Verbs': 'line', 'Counter': 1}, {'Verbs': '', 'Counter': -1}]",[],
+silicone-spatula,48.5,6,0,0,"{'combine': 1, 'place': 1, 'prepare': 1, 'brush': 1, 'divide': 1, 'desire': 1}","[{'Verbs': 'combine', 'Counter': 1}, {'Verbs': 'place', 'Counter': 1}, {'Verbs': 'prepare', 'Counter': 1}]","[('divest', 'place', 1), ('unite', 'divide', 1), ('multiply', 'divide', 1)]",
+brush,43.0,1,1,1,"{'place': 1, 'prepare': 1, 'brush': 1}","[{'Verbs': 'place', 'Counter': 1}, {'Verbs': 'prepare', 'Counter': 1}, {'Verbs': 'brush', 'Counter': 1}]","[('divest', 'place', 1)]",
+oven-glove,54.0,3,0,0,"{'rub': 1, 'coat': 1}","[{'Verbs': 'rub', 'Counter': 1}, {'Verbs': 'coat', 'Counter': 1}, {'Verbs': '', 'Counter': -1}]",[],
+tongs,51.2,5,0,0,"{'rub': 1, 'coat': 1, 'bake': 1, 'cook': 1}","[{'Verbs': 'rub', 'Counter': 1}, {'Verbs': 'coat', 'Counter': 1}, {'Verbs': 'bake', 'Counter': 1}]",[],
