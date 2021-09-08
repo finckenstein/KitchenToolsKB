@@ -8,7 +8,7 @@ from utility.kitchenware import Kitchenware
 import utility.write_to_csv as w_csv
 
 from edges.contains import Contains
-from edges.verbs_to_describe import UsedFor
+from edges.verbs_to_describe import ToVerbs
 
 
 def handle_potential_food(noun, track_concepts, c, cur_kitchenware):
@@ -22,9 +22,8 @@ def handle_potential_food(noun, track_concepts, c, cur_kitchenware):
         print("concept stored. noun: ", noun, " for concepts: ", concepts_tracked)
 
     if len(concepts) > 0:
-        track_concepts.append_food_concepts_to_sentence(concepts)
-        track_concepts.append_food_to_sentence(noun)
-        c.append_concepts_sequentially(concepts, noun, cur_kitchenware)
+        track_concepts.update_concepts_in_sentence(noun, concepts)
+        c.append_food(noun, concepts, cur_kitchenware)
 
 
 def analyze_sentence(sen, c, k, cuf, track_concepts, verbs):
@@ -36,7 +35,8 @@ def analyze_sentence(sen, c, k, cuf, track_concepts, verbs):
 
         if token.pos_ == "VERB" and token.dep_ != "xcomp":
             cuf.append_single_verb(word, k.cur_kitchenware)
-            verbs.append(word)
+            if word not in verbs:
+                verbs.append(word)
 
         elif token.pos_ == "NOUN":
             if k.check_explicit_change_in_kitchenware(token, word, sen, sen_i):
@@ -74,8 +74,7 @@ def parse_recipe(rec, nl, contains, kitchenware, container_used_to, fcb, track_c
 
         for sentence in sentences:
             print("\n\n", sentence)
-            track_concepts.concepts_in_sentence = []
-            track_concepts.foods_in_sentence = []
+            track_concepts.foods_in_sentence = {}
             verbs = []
 
             for sentence_part in split_sentence_into_punctuations(sentence):
@@ -94,8 +93,8 @@ if __name__ == '__main__':
 
     contains_edge = Contains()
     kitchenware_tracker = Kitchenware()
-    container_used_for = UsedFor()
-    food_cooked_by = UsedFor()
+    container_used_for = ToVerbs()
+    food_cooked_by = ToVerbs()
     track_concept_net_results = concept_net.TrackConceptsFound()
 
     i = 1
@@ -115,10 +114,10 @@ if __name__ == '__main__':
         i += 1
 
     contains_edge.analyze_and_convert_data()
-    w_csv.write_container_to_csv(contains_edge.all_data, "contains.csv")
+    w_csv.write_container_to_csv(contains_edge.csv_data, "contains.csv")
 
     container_used_for.analyze_and_convert_data("Container")
-    w_csv.write_verbs_to_describe_to_csv('Container', container_used_for.all_data, "container_used_for.csv")
+    w_csv.write_verbs_to_describe_to_csv('Container', container_used_for.csv_data, "container_used_for.csv")
 
     food_cooked_by.analyze_and_convert_data("Food")
-    w_csv.write_verbs_to_describe_to_csv('Food', food_cooked_by.all_data, "food_cooked_by.csv")
+    w_csv.write_verbs_to_describe_to_csv('Food', food_cooked_by.csv_data, "food_cooked_by.csv")

@@ -1,105 +1,58 @@
 from utility.partition_tools import synonymous_kitchenware
+from edges.used_to_prepare import get_5_most
 
 
-def get_top_three(list_of_tuples):
-    maxi = sec_maxi = third_maxi = (None, -1)
-    for tmp_tuple in list_of_tuples:
-        if tmp_tuple[1] > maxi[1]:
-            third_maxi = sec_maxi
-            sec_maxi = maxi
-            maxi = tmp_tuple
-        elif tmp_tuple[1] > sec_maxi[1]:
-            third_maxi = sec_maxi
-            sec_maxi = tmp_tuple
-        elif tmp_tuple[1] > third_maxi[1]:
-            third_maxi = tmp_tuple
-    return [maxi, sec_maxi, third_maxi]
+def get_concepts(dic):
+    tmp = {}
+    for food in dic:
+        concepts = dic[food]['ConceptFoods']
+        for concept in concepts:
+            if concept in tmp:
+                tmp[concept]['Foods'].append(food)
+                tmp[concept]['Counter'] += dic[food]['Counter']
+            else:
+                tmp[concept] = {}
+                tmp[concept]['Foods'] = [food]
+                tmp[concept]['Counter'] = dic[food]['Counter']
 
-
-def get_total_sum(list_of_tuples):
-    summation = 0
-    for food_tuple in list_of_tuples:
-        summation += food_tuple[1]
-    return summation
-
-
-def get_foods(tuple_list):
-    tmp = []
-    for food_tuple in tuple_list:
-        tmp.append(food_tuple[0])
     return tmp
+
+
+def get_sum(dic):
+    summation = 0
+    for key in dic:
+        summation += dic[key]['Counter']
+    return summation
 
 
 class Contains:
     def __init__(self):
         self.contains = {}
-
+        # {container: {food: {'ConceptFood': [], 'Counter': 1}}}
         for key in synonymous_kitchenware:
             self.contains[key] = {}
-        print(self.contains)
 
-        self.all_data = []
+        self.csv_data = []
 
-    def append_concepts_sequentially(self, concepts, food, cur_kitchenware):
-        if cur_kitchenware is None:
+    def append_food(self, food, concepts, container):
+        if container is None:
             return
-
-        for concept in concepts:
-            self.append_data(concept, food, cur_kitchenware)
-
-    def append_data(self, concept_food, word, cur_kitchenware):
-        for dic in self.contains[cur_kitchenware]:
-            for concept_key in dic:
-                if concept_key == concept_food:
-                    self.concept_is_stored(cur_kitchenware, concept_key, word)
-                    return
-
-        self.contains[cur_kitchenware][concept_food] = [(word, 1)]
-
-    def concept_is_stored(self, cur_kitchenware, concept_key, word):
-        index = 0
-        for food_tuple in self.contains[cur_kitchenware][concept_key]:
-            if food_tuple[0] == word:
-                food_counter = self.contains[cur_kitchenware][concept_key][index][1] + 1
-                self.contains[cur_kitchenware][concept_key][index] = (word, food_counter)
-                return
-            index += 1
-
-        self.contains[cur_kitchenware][concept_key].append_list_of_verbs(word, 1)
-
-    def get_sum_food_occurrences_in_concept(self, k, c):
-        summation = 0
-        for food_tuple in self.contains[k][c]:
-            summation += food_tuple[1]
-        return summation
-
-    def get_concepts_for(self, k):
-        tmp = []
-        for concepts in self.contains[k]:
-            tmp.append((concepts, self.get_sum_food_occurrences_in_concept(k, concepts)))
-        return tmp
-
-    def get_foods_for(self, k):
-        tmp = []
-        for concepts in self.contains[k]:
-            for food_tuple in self.contains[k][concepts]:
-                if food_tuple[0] not in get_foods(tmp):
-                    tmp.append(food_tuple)
-                else:
-                    tmp[tmp.index(food_tuple)] = (food_tuple[0], food_tuple[1]+1)
-        return tmp
+        assert container in self.contains, "container from txt is given illegal key"
+        if food in self.contains[container]:
+            self.contains[container][food]['Counter'] += 1
+        else:
+            self.contains[container][food] = {}
+            self.contains[container][food]['ConceptFoods'] = concepts
+            self.contains[container][food]['Counter'] = 1
 
     def analyze_and_convert_data(self):
         for kitchenware in self.contains:
-            concepts_in_kitchenware = self.get_concepts_for(kitchenware)
-            foods_in_kitchenware = self.get_foods_for(kitchenware)
-
-            self.all_data.append({'Container': kitchenware,
-                                  'Concepts in Kitchenware': concepts_in_kitchenware,
-                                  'Top 3 concepts': get_top_three(concepts_in_kitchenware),
-                                  'Number of Unique Concepts': len(concepts_in_kitchenware),
-                                  'Foods in Kitchenware': foods_in_kitchenware,
-                                  'Top 3 Foods': get_top_three(foods_in_kitchenware),
-                                  'Number of Unique Foods': len(foods_in_kitchenware),
-                                  'Total Number of Food and Concepts': get_total_sum(foods_in_kitchenware),
-                                  'Raw Data Collected': self.contains[kitchenware]})
+            foods = self.contains[kitchenware]
+            concepts = get_concepts(self.contains[kitchenware])
+            self.csv_data.append({'Container': kitchenware,
+                                  'Foods': foods,
+                                  'Top 5 Foods': get_5_most(foods, 'Counter', 'Food'),
+                                  'Number of Foods Contained': get_sum(foods),
+                                  'ConceptFoods': concepts,
+                                  'Top 5 ConceptFoods': get_5_most(foods, 'Counter', 'ConceptFoods'),
+                                  'Number of ConceptFoods Contained': get_sum(concepts)})

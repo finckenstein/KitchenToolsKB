@@ -16,24 +16,8 @@ from computer_vision import make_inference_from_cv as inference
 from computer_vision.tensorflow_object_detection_utils import ops as utils_ops
 from computer_vision.tensorflow_object_detection_utils import label_map_util
 
-from edges.used_to_prepare import UsedToPrepare, UsedFor
+from edges.used_to_prepare import UtensilsToFoods, UtensilsToVerbs
 from utility.sync_txt_with_video import Sync
-
-
-def does_cv_match_txt(txt, cvs):
-    tmp = []
-    if cvs is None:
-        return 0
-    for container in cvs:
-        if container is not None:
-            tmp.append(container.replace("-", " "))
-        else:
-            tmp.append(None)
-
-    if txt in tmp:
-        return 1
-    else:
-        return 0
 
 
 def does_current_cv_container_match_txt(txt, cv):
@@ -45,23 +29,28 @@ def does_current_cv_container_match_txt(txt, cv):
         return 0
 
 
-def get_detected_utensils(cv_dict, txt_container):
-    utensils = {}
-    cv_container_matches_txt = does_cv_match_txt(txt_container, cv_dict)
-
+def get_detected_utensils(cv_dict, txt_container, sync):
     if cv_dict is None:
-        return utensils
+        return {}
 
+    utensils = {}
+    is_in_sync = sync.is_video_in_sync_with_txt(txt_container, cv_dict)
     for container in cv_dict:
         if container is None:
             for utensil in cv_dict[None]:
                 assert utensil not in utensils, "utensil gotten from cv should be unique"
-                utensils[utensil] = [cv_container_matches_txt, 0, cv_dict[None][utensil]]
+                utensils[utensil] = {}
+                utensils[utensil]['Accuracy'] = cv_dict[None][utensil]
+                utensils[utensil]['CV is in Sync with TXT'] = is_in_sync
+                utensils[utensil]['Utensil is meant'] = 0
         elif len(cv_dict[container]) > 0:
             for utensil in cv_dict[container]:
                 overlaps = does_current_cv_container_match_txt(txt_container, container)
                 assert utensil not in utensils, "utensil gotten from cv should be unique"
-                utensils[utensil] = [cv_container_matches_txt, overlaps, cv_dict[container][utensil]]
+                utensils[utensil] = {}
+                utensils[utensil]['Accuracy'] = cv_dict[container][utensil]
+                utensils[utensil]['CV is in Sync with TXT'] = is_in_sync
+                utensils[utensil]['Utensil is meant'] = overlaps
     return utensils
 
 
@@ -86,7 +75,7 @@ def analyze_sentence(sen, utp, k, uuf, track_concepts, verbs, s):
         token = sen[sen_i]
         word = sen[sen_i].lemma_.lower()
         print("\n\n\n", word)
-        if token.pos_ == "VERB" and token.dep_ != "xcomp":
+        if token.pos_ == "VERB" and token.dep_ != "xcomp" and word not in verbs:
             verbs.append(word)
         elif token.pos_ == "NOUN":
             if k.check_explicit_change_in_kitchenware(token, word, sen, sen_i):
@@ -101,7 +90,7 @@ def analyze_sentence(sen, utp, k, uuf, track_concepts, verbs, s):
         print("current txt kitchenware: ", k.cur_kitchenware)
         cv_kitchenware_dict = s.get_cv_detected_tool()
         print("cv detected: ", cv_kitchenware_dict)
-        utensils_detected = get_detected_utensils(cv_kitchenware_dict, k.cur_kitchenware)
+        utensils_detected = get_detected_utensils(cv_kitchenware_dict, k.cur_kitchenware, s)
         print("utensils to be used: ", utensils_detected)
 
         if len(utensils_detected) > 0:
@@ -147,9 +136,9 @@ if __name__ == '__main__':
     recipe_rows = db.sql_fetch_1to1_videos("all")
     nlp = spacy.load('en_core_web_trf')
 
-    used_to_prepare = UsedToPrepare()
+    used_to_prepare = UtensilsToFoods()
     kitchenware_tracker = Kitchenware()
-    util_used_for = UsedFor()
+    util_used_for = UtensilsToVerbs()
     track_concept_net_results = concept_net.TrackConceptsFound()
 
     i = 1
