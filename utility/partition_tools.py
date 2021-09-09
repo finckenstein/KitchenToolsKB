@@ -1,14 +1,14 @@
-kitchenware_cv = ['bowl', 'pan', 'pot', 'cutting-board', 'plate', 'baking-sheet', 'baking-dish', 'blender',
+container_cv = ['bowl', 'pan', 'pot', 'cutting-board', 'plate', 'baking-sheet', 'baking-dish', 'blender',
                   'food-container', 'baking-form', 'baking-rack', 'cupcake-tin']
 
-tools_cv = ['pinch-bowl', 'silicone-spatula', 'jug', 'lepel', 'tongs', 'wooden-spatula', 'whisk', 'fork', 'spoon',
+utensils_cv = ['pinch-bowl', 'silicone-spatula', 'jug', 'lepel', 'tongs', 'wooden-spatula', 'whisk', 'fork', 'spoon',
             'knife', 'mixer', 'measuring-cup', 'turner', 'sieve', 'peeler', 'rolling-pin',
             'brush', 'skimmer', 'ladle', 'scoop', 'grater', 'icing-spatula', 'pepper-mill', 'hammer', 'chopsticks',
             'oil-dispenser', 'lid', 'squeezer', 'jar', 'oven-glove', 'masher', 'pizza-cutter']
 
 cutlery_cv = ['fork', 'knife', 'spoon', 'chopsticks', 'person']
 
-eating_kitchenware_cv = ['bowl', 'plate']
+eating_container_cv = ['bowl', 'plate']
 
 synonymous_kitchenware = {'pan': ['skillet'], #914 + 359 = 1273
                           'pot': ['saucepan'], #584 + 193 = 777
@@ -21,13 +21,17 @@ synonymous_kitchenware = {'pan': ['skillet'], #914 + 359 = 1273
                           'bowl': ['food container'], #1199 + 0 = 1199
                           'plate': []} #166
 
+coco_foods = ['cake', 'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut']
+
+coco_glasses = ['wine glass', 'bottle', 'cup']
+
 
 def is_tool_util(tool):
-    return tool in tools_cv
+    return tool in utensils_cv
 
 
 def is_tool_kitchenware(key):
-    return key in kitchenware_cv
+    return key in container_cv
 
 
 def get_partitioning_of_tools(cv_tools, func):

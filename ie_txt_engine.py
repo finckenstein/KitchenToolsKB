@@ -4,7 +4,7 @@ import spacy
 import ast
 
 from utility.apis import concept_net_api as concept_net
-from utility.kitchenware import Kitchenware
+from utility.container import Container
 import utility.write_to_csv as w_csv
 
 from edges.container_to_foods import ContainerToFoods
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     nlp = spacy.load('en_core_web_trf')
 
     contains_edge = ContainerToFoods()
-    kitchenware_tracker = Kitchenware()
+    kitchenware_tracker = Container()
     container_used_for = ToVerbs()
     food_cooked_by = ToVerbs()
     track_concept_net_results = concept_net.TrackConceptsFound()

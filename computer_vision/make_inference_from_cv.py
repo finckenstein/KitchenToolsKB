@@ -114,8 +114,8 @@ def make_inference_for_ow(capture, model, fr, category_index, accuracy, get_what
 def make_inference_for_ew(capture, model, fr, category_index, accuracy, get_what, video_length):
     frame_id = capture.get(get_what)  # current frame number
     ret, image_np = capture.read()
-    print("we are at seconds: ", capture.get(cv2.CAP_PROP_POS_MSEC)/1000)
-    if not ret or capture.get(cv2.CAP_PROP_POS_MSEC)/1000 >= video_length - 3:
+    print("\n\nwe are at seconds: ", capture.get(cv2.CAP_PROP_POS_MSEC)/1000)
+    if not ret or capture.get(cv2.CAP_PROP_POS_MSEC)/1000 >= video_length - 5:
         return False, []
 
     if frame_id % math.floor(fr) == 0:

@@ -1,7 +1,7 @@
 from utility.partition_tools import synonymous_kitchenware
 
 
-class Kitchenware:
+class Container:
     def __init__(self):
         self.cur_kitchenware = None
         self.all_kitchenware = []

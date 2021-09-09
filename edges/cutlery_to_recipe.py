@@ -2,8 +2,10 @@ from utility import partition_tools as pt
 
 
 def find_most_accurate_for_each(dic):
+    print("[find_most_accurate_for_each] ", dic)
     tmp_tools = {}
     for tool in dic:
+        print(dic[tool])
         tmp_tools[tool] = max(dic[tool])
     return tmp_tools
 
@@ -27,7 +29,7 @@ def get_other_most_accurate(most_accurate_dic, cutlery_with_most_most_accurate):
     tmp_cutlery = {'Cutlery': None, 'Accuracy': -1}
 
     for cutlery in cutlery_with_most_most_accurate:
-        if (cutlery != most_accurate_dic['Cutlery'] and cutlery_with_most_most_accurate[cutlery] > 40
+        if (cutlery != most_accurate_dic['Cutlery'] and cutlery_with_most_most_accurate[cutlery] > 51
                 and cutlery_with_most_most_accurate[cutlery] > tmp_cutlery['Accuracy']):
             tmp_cutlery['Cutlery'] = cutlery
             tmp_cutlery['Accuracy'] = cutlery_with_most_most_accurate[cutlery]
@@ -38,38 +40,97 @@ def get_other_most_accurate(most_accurate_dic, cutlery_with_most_most_accurate):
     return other_most_accurate
 
 
+def update_dict(dict_in_qust, tool_key, detected_dict):
+    if tool_key in dict_in_qust:
+        dict_in_qust.append(detected_dict[tool_key][1])
+    else:
+        dict_in_qust = [detected_dict[tool_key][1]]
+    return dict_in_qust
+
+
+def most_accurate_container_type(contained_type, dic):
+    container_dic = find_most_accurate_for_each(dic)
+    most_acc_container = {contained_type: None, 'Accuracy': -1}
+
+    for container in container_dic:
+        if container_dic[container] > most_acc_container['Accuracy']:
+            most_acc_container[contained_type] = container
+            most_acc_container['Accuracy'] = container_dic[container]
+    return most_acc_container
+
+
 class CutleryToRecipe:
     def __init__(self, recipe_url, recipe_name, recipe_video):
         self.recipe_url = recipe_url
         self.recipe_name = recipe_name
         self.recipe_video = recipe_video
+
+        self.foods = {}
+
+        self.glasses = {}
+        # {Glasses: [accuracies]}
         self.cutlery = {}
         # {cutlery: [accuracies]}
         self.container = {}
         # {container: [accuracies]}
+
         self.last_detected_cutlery = {}
+        # {'Cutlery': cutlery_tool, 'Accuracy': int}
         self.last_detected_container = {}
+        # {'Container': cutlery_tool, 'Accuracy': int}
+        self.last_detected_glass = {}
+        # {'Glass': glass_tool, 'Accuracy': int}
         self.csv_data = []
+        self.other_detected = {}
+
+    def update_container_data(self, tool_key, accuracy):
+        self.last_detected_container = {'Container': tool_key, 'Accuracy': accuracy}
+        if tool_key in self.container:
+            self.container[tool_key].append(accuracy)
+        else:
+            self.container[tool_key] = [accuracy]
+
+    def update_cutlery_data(self, tool_key, accuracy):
+        self.last_detected_cutlery = {'Cutlery': tool_key, 'Accuracy': accuracy}
+        if tool_key in self.cutlery:
+            self.cutlery[tool_key].append(accuracy)
+        else:
+            self.cutlery[tool_key] = [accuracy]
+
+    def update_glasses_data(self, tool_key, accuracy):
+        self.last_detected_glass = {'Glass': tool_key, 'Accuracy': accuracy}
+        if tool_key in self.glasses:
+            self.glasses[tool_key].append(accuracy)
+        else:
+            self.glasses[tool_key] = [accuracy]
+
+    def update_other_data(self, tool_key, accuracy):
+        if tool_key in self.other_detected:
+            self.other_detected[tool_key].append(accuracy)
+        else:
+            self.other_detected[tool_key] = [accuracy]
+
+    def update_foods_data(self, tool_key, accuracy):
+        if tool_key in self.foods:
+            if accuracy > self.foods[tool_key]['Top Accuracy']:
+                self.foods[tool_key]['Top Accuracy'] = accuracy
+            self.foods[tool_key]['Occurrences'] += 1
+        else:
+            self.foods[tool_key] = {'Top Accuracy': accuracy, 'Occurrences': 1}
 
     def filter_out_none_cutlery_and_eating_utensils(self, tools):
-        for tool in tools:
-            for tool_key in tool:
+        for detected_dict in tools:
+            for tool_key in detected_dict:
                 if tool_key in pt.cutlery_cv:
-                    self.last_detected_cutlery = {'Container': tool_key, 'Accuracy': tool[tool_key][1]}
-                    if tool_key in self.cutlery:
-                        self.cutlery[tool_key].append(tool[tool_key][1])
-                        print("[filter_out_none_cutlery] appended for: ", tool_key, len(self.cutlery[tool_key]))
-                    else:
-                        self.cutlery[tool_key] = [tool[tool_key][1]]
-                        print("[filter_out_none_cutlery] added cutlery first time: ", tool_key)
-                elif tool_key in pt.eating_kitchenware_cv:
-                    self.last_detected_container = {'Container': tool_key, 'Accuracy': tool[tool_key][1]}
-                    if tool_key in self.container:
-                        self.container[tool_key].append(tool[tool_key][1])
-                        print("[filter_out_none_cutlery] appended for: ", tool_key, len(self.container[tool_key]))
-                    else:
-                        self.container[tool_key] = [tool[tool_key][1]]
-                        print("[filter_out_none_cutlery] added container first time: ", tool_key)
+                    self.update_cutlery_data(tool_key, detected_dict[tool_key][1])
+                elif tool_key in pt.eating_container_cv:
+                    self.update_container_data(tool_key, detected_dict[tool_key][1])
+                elif tool_key in pt.coco_glasses:
+                    self.update_glasses_data(tool_key, detected_dict[tool_key][1])
+                elif tool_key in pt.coco_foods:
+                    self.update_foods_data(tool_key, detected_dict[tool_key][1])
+                else:
+                    self.update_other_data(tool_key, detected_dict[tool_key][1])
 
     def most_occurring(self, cutlery_or_container):
         dic_in_question = {}
@@ -77,6 +138,8 @@ class CutleryToRecipe:
             dic_in_question = self.cutlery
         elif cutlery_or_container == 'Container':
             dic_in_question = self.container
+        elif cutlery_or_container == 'Glass':
+            dic_in_question = self.glasses
 
         most_occurring_tool = {cutlery_or_container: None, 'Occurrence': -1, 'Average Accuracy': -1}
 
@@ -106,22 +169,15 @@ class CutleryToRecipe:
 
         return get_other_most_accurate(most_accurate_cutlery, tmp_cutlery)
 
-    def most_accurate_container(self):
-        container_dic = find_most_accurate_for_each(self.container)
-        most_accurate_container = {'Container': None, 'Accuracy': -1}
-
-        for container in container_dic:
-            if container_dic[container] > most_accurate_container['Accuracy']:
-                most_accurate_container['Container'] = container
-                most_accurate_container['Accuracy'] = container_dic[container]
-        return most_accurate_container
-
-    def analyze_data_and_convert_to_csv(self, used_coco_data):
-        most_accurate_container = self.most_accurate_container()
+    def analyze_data_and_convert_to_csv(self):
+        most_accurate_container = most_accurate_container_type('Container', self.container)
         most_occurring_container = self.most_occurring('Container')
 
         most_accurate_cutlery = self.most_accurate_cutlery(most_accurate_container['Container'])
         most_occurring_cutlery = self.most_occurring('Cutlery')
+
+        most_accurate_glass = most_accurate_container_type('Glass', self.glasses)
+        most_occurring_glass = self.most_occurring('Glass')
 
         self.csv_data.append({'Recipe Title': self.recipe_name,
                               'Recipe URL': self.recipe_url,
@@ -132,4 +188,8 @@ class CutleryToRecipe:
                               'Most_Accurate_Container': most_accurate_container,
                               'Most_Occurring_Container': most_occurring_container,
                               'Last_Detected_Container': self.last_detected_container,
-                              'Used_COCO_Model': used_coco_data})
+                              'Most_Accurate_Glass': most_accurate_glass,
+                              'Most_Occurring_Glass': most_occurring_glass,
+                              'Last_Detected_Glass': self.last_detected_glass,
+                              'Potential Foods': self.foods,
+                              'Other detections': self.other_detected})
