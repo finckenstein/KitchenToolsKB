@@ -16,7 +16,7 @@ from computer_vision import make_inference_from_cv as inference
 from computer_vision.tensorflow_object_detection_utils import ops as utils_ops
 from computer_vision.tensorflow_object_detection_utils import label_map_util
 
-from edges.used_to_prepare import UtensilsToFoods, UtensilsToVerbs
+from edges.utensils_to import UtensilsToFoods, UtensilsToVerbs
 from utility.sync_txt_with_video import Sync
 
 

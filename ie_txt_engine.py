@@ -7,8 +7,8 @@ from utility.apis import concept_net_api as concept_net
 from utility.kitchenware import Kitchenware
 import utility.write_to_csv as w_csv
 
-from edges.contains import Contains
-from edges.verbs_to_describe import ToVerbs
+from edges.container_to_foods import ContainerToFoods
+from edges.to_verbs import ToVerbs
 
 
 def handle_potential_food(noun, track_concepts, c, cur_kitchenware):
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     recipe_rows = db.sql_fetch_recipe_db("all")
     nlp = spacy.load('en_core_web_trf')
 
-    contains_edge = Contains()
+    contains_edge = ContainerToFoods()
     kitchenware_tracker = Kitchenware()
     container_used_for = ToVerbs()
     food_cooked_by = ToVerbs()

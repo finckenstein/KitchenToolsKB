@@ -37,3 +37,25 @@ def write_utensil_foods_to_csv(data, filename):
         writer.writerows(data)
 
 
+def write_headers_for_ew():
+    fields = ['Recipe Title', 'Recipe URL', 'Recipe Video',
+              'Most_Accurate_Cutlery', 'Most_Occurring_Cutlery', 'Last_Detected_Cutlery',
+              'Most_Accurate_Container', 'Most_Occurring_Container', 'Last_Detected_Container',
+              'Used COCO Model']
+    filename = "eaten_with.csv"
+    with open(filename, 'w') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fields)
+        writer.writeheader()
+
+
+def append_ew_data_to_csv(data):
+    fields = ['Recipe Title', 'Recipe URL', 'Recipe Video',
+              'Most_Accurate_Cutlery', 'Most_Occurring_Cutlery', 'Last_Detected_Cutlery',
+              'Most_Accurate_Container', 'Most_Occurring_Container', 'Last_Detected_Container',
+              'Used_COCO_Model']
+    filename = "eaten_with.csv"
+    with open(filename, 'a') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fields)
+        writer.writerows(data)
+
+

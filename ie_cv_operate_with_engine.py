@@ -8,7 +8,7 @@ from computer_vision import make_inference_from_cv as inference
 from utility import paths as path, video_utility_functions as vid, overlapping_tools_in_frame as overlap
 from computer_vision.tensorflow_object_detection_utils import label_map_util
 from computer_vision.tensorflow_object_detection_utils import ops as utils_ops
-from edges.operate_with import OperateWith
+from edges.tool_to_tool import ToolToTool
 
 
 def write_to_csv(data):
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     detection_model = inference.load_model(path.model_name)
     files = os.listdir(path.PATH_TO_VIDEOS)
 
-    operate_with = OperateWith()
+    operate_with = ToolToTool()
     i = 0
     for file in files:
         if '.mp4' in file:

@@ -1,5 +1,5 @@
 from utility.partition_tools import synonymous_kitchenware
-from edges.used_to_prepare import get_5_most
+from edges.utensils_to import get_5_most
 
 
 def get_concepts(dic):
@@ -25,7 +25,7 @@ def get_sum(dic):
     return summation
 
 
-class Contains:
+class ContainerToFoods:
     def __init__(self):
         self.contains = {}
         # {container: {food: {'ConceptFood': [], 'Counter': 1}}}

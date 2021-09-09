@@ -6,7 +6,7 @@ tools_cv = ['pinch-bowl', 'silicone-spatula', 'jug', 'lepel', 'tongs', 'wooden-s
             'brush', 'skimmer', 'ladle', 'scoop', 'grater', 'icing-spatula', 'pepper-mill', 'hammer', 'chopsticks',
             'oil-dispenser', 'lid', 'squeezer', 'jar', 'oven-glove', 'masher', 'pizza-cutter']
 
-cutlery_cv = ['fork', 'knife', 'spoon', 'chopsticks']
+cutlery_cv = ['fork', 'knife', 'spoon', 'chopsticks', 'person']
 
 eating_kitchenware_cv = ['bowl', 'plate']
 

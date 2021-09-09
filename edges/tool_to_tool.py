@@ -1,5 +1,5 @@
 
-class OperateWith:
+class ToolToTool:
     def __init__(self):
         self.location_tool_combination = {}
 

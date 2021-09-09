@@ -1,5 +1,5 @@
 import utility.apis.word_net_api as word_net
-from edges.used_to_prepare import get_5_most
+from edges.utensils_to import get_5_most
 
 
 class ToVerbs:
