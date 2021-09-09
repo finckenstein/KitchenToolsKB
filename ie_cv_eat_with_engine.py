@@ -18,14 +18,17 @@ def print_findings(dic):
     print("Most_Accurate_Cutlery: ", dic['Most_Accurate_Cutlery'])
     print("Most_Occurring_Cutlery: ", dic['Most_Occurring_Cutlery'])
     print("Last_Detected_Cutlery: ", dic['Last_Detected_Cutlery'])
+    print("All Cutlery: ", dic['All Cutlery'])
 
     print("Most_Accurate_Container: ", dic['Most_Accurate_Container'])
     print("Most_Occurring_Container: ", dic['Most_Occurring_Container'])
     print("Last_Detected_Container: ", dic['Last_Detected_Container'])
+    print("All Containers: ", dic['All Containers:'])
 
     print("Most_Accurate_Glass: ", dic['Most_Accurate_Glass'])
     print("Most_Occurring_Glass: ", dic['Most_Occurring_Glass'])
     print("Last_Detected_Glass: ", dic['Last_Detected_Glass'])
+    print("All Glasses: ", dic['All Glasses:'])
     print("\n\n\n")
 
 
@@ -65,9 +68,9 @@ if __name__ == '__main__':
     recipes = db.sql_fetch_1to1_videos('all')
 
     csv_headers = ['Recipe Title', 'Recipe URL', 'Recipe Video',
-                   'Most_Accurate_Cutlery', 'Most_Occurring_Cutlery', 'Last_Detected_Cutlery',
-                   'Most_Accurate_Container', 'Most_Occurring_Container', 'Last_Detected_Container',
-                   'Most_Accurate_Glass', 'Most_Occurring_Glass', 'Last_Detected_Glass',
+                   'Most_Accurate_Cutlery', 'Most_Occurring_Cutlery', 'Last_Detected_Cutlery', 'All Cutlery'
+                   'Most_Accurate_Container', 'Most_Occurring_Container', 'Last_Detected_Container', 'All Containers'
+                   'Most_Accurate_Glass', 'Most_Occurring_Glass', 'Last_Detected_Glass', 'All Glasses'
                    'Potential Foods', 'Other detections']
     store_in_csv = WriteToCSV(csv_headers)
     store_in_csv.write_csv_header('knowledge_base/eaten_with.csv')

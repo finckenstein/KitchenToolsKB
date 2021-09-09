@@ -172,12 +172,15 @@ class CutleryToRecipe:
     def analyze_data_and_convert_to_csv(self):
         most_accurate_container = most_accurate_container_type('Container', self.container)
         most_occurring_container = self.most_occurring('Container')
+        all_container = find_most_accurate_for_each(self.container)
 
         most_accurate_cutlery = self.most_accurate_cutlery(most_accurate_container['Container'])
         most_occurring_cutlery = self.most_occurring('Cutlery')
+        all_cutlery = find_most_accurate_for_each(self.cutlery)
 
         most_accurate_glass = most_accurate_container_type('Glass', self.glasses)
         most_occurring_glass = self.most_occurring('Glass')
+        all_glasses = find_most_accurate_for_each(self.glasses)
 
         self.csv_data.append({'Recipe Title': self.recipe_name,
                               'Recipe URL': self.recipe_url,
@@ -185,11 +188,14 @@ class CutleryToRecipe:
                               'Most_Accurate_Cutlery': most_accurate_cutlery,
                               'Most_Occurring_Cutlery': most_occurring_cutlery,
                               'Last_Detected_Cutlery': self.last_detected_cutlery,
+                              'All Cutlery': all_cutlery,
                               'Most_Accurate_Container': most_accurate_container,
                               'Most_Occurring_Container': most_occurring_container,
                               'Last_Detected_Container': self.last_detected_container,
+                              'All Containers': all_container,
                               'Most_Accurate_Glass': most_accurate_glass,
                               'Most_Occurring_Glass': most_occurring_glass,
                               'Last_Detected_Glass': self.last_detected_glass,
+                              'All Glasses': all_glasses,
                               'Potential Foods': self.foods,
                               'Other detections': self.other_detected})
