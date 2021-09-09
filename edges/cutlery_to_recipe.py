@@ -29,7 +29,7 @@ def get_other_most_accurate(most_accurate_dic, cutlery_with_most_most_accurate):
     tmp_cutlery = {'Cutlery': None, 'Accuracy': -1}
 
     for cutlery in cutlery_with_most_most_accurate:
-        if (cutlery != most_accurate_dic['Cutlery'] and cutlery_with_most_most_accurate[cutlery] > 51
+        if (cutlery != most_accurate_dic['Cutlery'] and cutlery_with_most_most_accurate[cutlery] > 59
                 and cutlery_with_most_most_accurate[cutlery] > tmp_cutlery['Accuracy']):
             tmp_cutlery['Cutlery'] = cutlery
             tmp_cutlery['Accuracy'] = cutlery_with_most_most_accurate[cutlery]

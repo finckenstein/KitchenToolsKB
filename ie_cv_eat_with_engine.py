@@ -34,7 +34,7 @@ def print_findings(dic):
 
 def analyze_video(vid_file, vid_dur, eaten_with, cv_coco_modl, coco_category, cv_kt_model, kt_cat):
     cap = cv2.VideoCapture(path.PATH_TO_VIDEOS + vid_file)
-    frm_rate = cap.set(cv2.CAP_PROP_POS_MSEC, (vid_dur - 12) * 1000) # 12
+    frm_rate = cap.set(cv2.CAP_PROP_POS_MSEC, (vid_dur - 13.5) * 1000) # 12
 
     while cap.isOpened():
         coco_found_tools = inference.make_inference_for_ew(cap, cv_coco_modl, frm_rate, coco_category, 0.49, 1, vid_dur)
@@ -79,16 +79,15 @@ if __name__ == '__main__':
     for recipe in recipes:
         eat_with = CutleryToRecipe(recipe[db.RecipeWithVideoI.URL],
                                    recipe[db.RecipeWithVideoI.TITLE], recipe[db.RecipeWithVideoI.VIDEO_ID])
-        if recipe[db.RecipeWithVideoI.VIDEO_ID] == 40:
 
-            video_file = vid.get_video_file(files, recipe[db.RecipeWithVideoI.VIDEO_ID])
-            video_length = vid.get_video_length(path.PATH_TO_VIDEOS + video_file)
+        video_file = vid.get_video_file(files, recipe[db.RecipeWithVideoI.VIDEO_ID])
+        video_length = vid.get_video_length(path.PATH_TO_VIDEOS + video_file)
 
-            analyze_video(video_file, video_length, eat_with, coco_model, coco_categories, kt_model, kt_category)
+        analyze_video(video_file, video_length, eat_with, coco_model, coco_categories, kt_model, kt_category)
 
-            eat_with.analyze_data_and_convert_to_csv()
-            store_in_csv.append_to_csv(eat_with.csv_data, "knowledge_base/eaten_with.csv")
+        eat_with.analyze_data_and_convert_to_csv()
+        store_in_csv.append_to_csv(eat_with.csv_data, "knowledge_base/eaten_with.csv")
 
-            print("\n\n\niteration: ", i, " is over. Analyzed video: ", recipe[db.RecipeWithVideoI.VIDEO_ID])
-            print_findings(eat_with.csv_data[0])
-            i += 1
+        print("\n\n\niteration: ", i, " is over. Analyzed video: ", recipe[db.RecipeWithVideoI.VIDEO_ID])
+        print_findings(eat_with.csv_data[0])
+        i += 1
