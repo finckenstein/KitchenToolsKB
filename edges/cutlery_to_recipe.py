@@ -6,7 +6,7 @@ def find_most_accurate_for_each(dic):
     tmp_tools = {}
     for tool in dic:
         print(dic[tool])
-        tmp_tools[tool] = max(dic[tool])
+        tmp_tools[tool] = {'Top Accuracy': max(dic[tool]), 'Occurrence': get_average(dic[tool])}
     return tmp_tools
 
 
@@ -53,9 +53,9 @@ def most_accurate_container_type(contained_type, dic):
     most_acc_container = {contained_type: None, 'Accuracy': -1}
 
     for container in container_dic:
-        if container_dic[container] > most_acc_container['Accuracy']:
+        if container_dic[container]['Top Accuracy'] > most_acc_container['Accuracy']:
             most_acc_container[contained_type] = container
-            most_acc_container['Accuracy'] = container_dic[container]
+            most_acc_container['Accuracy'] = container_dic[container]['Top Accuracy']
     return most_acc_container
 
 
@@ -156,9 +156,9 @@ class CutleryToRecipe:
         most_accurate_cutlery = {'Cutlery': None, 'Accuracy': -1}
 
         for key in tmp_cutlery:
-            if tmp_cutlery[key] > most_accurate_cutlery['Accuracy']:
+            if tmp_cutlery[key]['Top Accuracy'] > most_accurate_cutlery['Accuracy']:
                 most_accurate_cutlery['Cutlery'] = key
-                most_accurate_cutlery['Accuracy'] = tmp_cutlery[key]
+                most_accurate_cutlery['Accuracy'] = tmp_cutlery[key]['Top Accuracy']
             elif tmp_cutlery[key] == most_accurate_cutlery['Accuracy']:
                 if container is None:
                     most_accurate_cutlery['Cutlery'] = key
@@ -188,14 +188,14 @@ class CutleryToRecipe:
                               'Most_Accurate_Cutlery': most_accurate_cutlery,
                               'Most_Occurring_Cutlery': most_occurring_cutlery,
                               'Last_Detected_Cutlery': self.last_detected_cutlery,
-                              'All Cutlery': all_cutlery,
+                              'All_Cutlery': all_cutlery,
                               'Most_Accurate_Container': most_accurate_container,
                               'Most_Occurring_Container': most_occurring_container,
                               'Last_Detected_Container': self.last_detected_container,
-                              'All Containers': all_container,
+                              'All_Containers': all_container,
                               'Most_Accurate_Glass': most_accurate_glass,
                               'Most_Occurring_Glass': most_occurring_glass,
                               'Last_Detected_Glass': self.last_detected_glass,
-                              'All Glasses': all_glasses,
+                              'All_Glasses': all_glasses,
                               'Potential Foods': self.foods,
                               'Other detections': self.other_detected})
