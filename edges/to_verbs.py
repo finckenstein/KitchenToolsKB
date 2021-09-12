@@ -68,6 +68,7 @@ class ToVerbs:
             verbs = self.to_verbs_dic[tool]
             sorted_verbs = dict(sorted(verbs.items(), key=lambda item: item[1], reverse=True))
             top_5_verbs = get_top_5(sorted_verbs, '')
+            print("\n\n Top 5 verbs: ", top_5_verbs)
             self.csv_data.append({util_or_container: tool,
                                   "Verbs": sorted_verbs,
                                   "Top 5 Verbs": top_5_verbs,

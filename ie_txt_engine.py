@@ -81,15 +81,12 @@ if __name__ == '__main__':
     container_used_for = ToVerbs()
     food_cooked_by = ToVerbs()
     track_concept_net_results = concept_net.TrackConceptsFound()
-    tmp_prep = []
 
     i = 1
     for recipe in recipe_rows:
         print("\n: Recipe ", i, ": ", recipe[db.RecipeI.PREPARATION])
         parse_recipe(recipe[db.RecipeI.PREPARATION], nlp, contains_edge, kitchenware_tracker, container_used_for,
                      food_cooked_by, track_concept_net_results)
-        tmp_prep.append(recipe[db.RecipeI.PREPARATION])
-
         if i == 3:
             break
         i += 1
@@ -101,9 +98,6 @@ if __name__ == '__main__':
             counter += 1
         print(elem, track_concept_net_results.noun_to_concepts[elem])
     print("counter: ", counter)
-
-    for recipe in tmp_prep:
-        print("\n\n", recipe)
 
     print("\n\ncontains:")
     for elem in contains_edge.contains:
@@ -128,3 +122,7 @@ if __name__ == '__main__':
     food_cooked_by.analyze_and_convert_data("Food")
     w_csv.write_to_csv(list(food_cooked_by.csv_data[0].keys()), food_cooked_by.csv_data,
                        "knowledge_base/food_cooked_by.csv")
+
+    track_concept_net_results.analyze_and_prepare_data()
+    w_csv.write_to_csv(list(track_concept_net_results.csv_data[0].keys()), track_concept_net_results.csv_data,
+                       "knowledge_base/foods_in_all_recipe.csv")

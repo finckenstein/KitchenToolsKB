@@ -60,7 +60,7 @@ if __name__ == "__main__":
     top_5 = get_top_5(sorted_dict)
     print(top_5)
 
-    print("\n\n", get_antonyms_from_dic(dic, False))
+    print("\n\n", get_antonyms_from_dic({None: 1, 'spoon': 1, 'slide': 1, 'top': 1, 'bake': 1, 'be': 1, 'start': 1}, False))
     print("\n\n", get_antonyms_from_dic(top_5, False))
 
 

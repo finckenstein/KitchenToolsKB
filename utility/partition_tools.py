@@ -16,7 +16,7 @@ synonymous_kitchenware = {'pan': ['skillet', 'saucepan'],  # 914 + 359 + 193= 14
                           'baking sheet': ['sheet pan', 'baking rack'],  # 449 + 20 + 9 = 478
                           'grill': ['griddle', 'barbecue', 'bbq'],  # 42 + 19 + 15 + 5 = 81
                           'blender': [],  # 210
-                          'cupcake tin': [],  # 1
+                          'cupcake tin': ['muffin tin'],  # 1
                           'cutting board': [],  # 111
                           'bowl': ['food container'],  # 1199 + 0 = 1199
                           'plate': []}  # 166

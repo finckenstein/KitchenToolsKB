@@ -5,8 +5,10 @@ from nltk.corpus import wordnet
 
 
 def get_antonyms_from_dic(verbs_dic, has_counter):
+    print("\n\n\n\n[get_antonyms_from_dic] ", verbs_dic)
     antonyms_of_tool = {}
     for verb_key in verbs_dic:
+        print(verb_key, verbs_dic[verb_key])
         if has_counter:
             counter = verbs_dic[verb_key]['Counter']
         else:
