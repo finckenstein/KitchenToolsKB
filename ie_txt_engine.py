@@ -35,34 +35,19 @@ def analyze_sentence(sen, c, k, cuf, track_concepts, verbs):
 
         if token.pos_ == "VERB" and token.dep_ != "xcomp":
             cuf.append_single_verb(word, k.cur_kitchenware)
-            if word not in verbs:
-                verbs.append(word)
+            verbs.append(word)
 
         elif token.pos_ == "NOUN":
             if k.check_explicit_change_in_kitchenware(token, word, sen, sen_i):
                 print("kitchenware explicitly to: ", k.cur_kitchenware)
 
             if token.dep_ == "compound" and sen_i + 1 < len(sen):
-                compound_word = word + " " + sen[sen_i + 1].lemma_.lower()
+                compound_word = word + "_" + sen[sen_i + 1].lemma_.lower()
                 handle_potential_food(compound_word, track_concepts, c, k.cur_kitchenware)
 
             handle_potential_food(word, track_concepts, c, k.cur_kitchenware)
 
         sen_i += 1
-
-
-def split_sentence_into_punctuations(s):
-    sentence_parts = []
-    word_array = []
-
-    for token in s:
-        if token.pos_ == "PUNCT":
-            sentence_parts.append(word_array)
-            word_array = []
-        else:
-            word_array.append(token)
-
-    return sentence_parts
 
 
 def parse_recipe(rec, nl, contains, kitchenware, container_used_to, fcb, track_concepts):
@@ -77,10 +62,10 @@ def parse_recipe(rec, nl, contains, kitchenware, container_used_to, fcb, track_c
             track_concepts.foods_in_sentence = {}
             verbs = []
 
-            for sentence_part in split_sentence_into_punctuations(sentence):
-                kitchenware.pre_parse_sentence_to_find_kitchenware(sentence_part)
-                print("Kitchenware before analyzing sentence: ", kitchenware.cur_kitchenware, "\n")
-                analyze_sentence(sentence_part, contains, kitchenware, container_used_to, track_concepts, verbs)
+            kitchenware.pre_parse_sentence_to_find_kitchenware(sentence)
+            print("Kitchenware before analyzing sentence: ", kitchenware.cur_kitchenware, "\n")
+
+            analyze_sentence(sentence, contains, kitchenware, container_used_to, track_concepts, verbs)
 
             print("verbs in sentence: ", verbs)
             print("foods in sentence: ", track_concepts.foods_in_sentence)
@@ -96,28 +81,50 @@ if __name__ == '__main__':
     container_used_for = ToVerbs()
     food_cooked_by = ToVerbs()
     track_concept_net_results = concept_net.TrackConceptsFound()
+    tmp_prep = []
 
     i = 1
     for recipe in recipe_rows:
+        print("\n: Recipe ", i, ": ", recipe[db.RecipeI.PREPARATION])
         parse_recipe(recipe[db.RecipeI.PREPARATION], nlp, contains_edge, kitchenware_tracker, container_used_for,
                      food_cooked_by, track_concept_net_results)
-
-        print("\n\n\niteration: ", i, " is over. Analyzed recipe: ", recipe[db.RecipeI.URL], ". All data so far:")
-        print("\n\nrecipe: ", recipe[db.RecipeI.PREPARATION])
-        print("contains: ", contains_edge.contains)
-        print("\n\ncontainer used for: ", container_used_for.to_verbs_dic)
-        print("\n\nfoods cooked by: ", food_cooked_by.to_verbs_dic)
-        print("\n\nconceptNet stored: ", track_concept_net_results.noun_to_concepts)
+        tmp_prep.append(recipe[db.RecipeI.PREPARATION])
 
         if i == 3:
             break
         i += 1
 
+    print("\n\nconceptNet stored: ")
+    counter = 0
+    for elem in track_concept_net_results.noun_to_concepts:
+        if len(track_concept_net_results.noun_to_concepts[elem]) > 0:
+            counter += 1
+        print(elem, track_concept_net_results.noun_to_concepts[elem])
+    print("counter: ", counter)
+
+    for recipe in tmp_prep:
+        print("\n\n", recipe)
+
+    print("\n\ncontains:")
+    for elem in contains_edge.contains:
+        print(elem, contains_edge.contains[elem])
+
+    print("\n\ncontainer used for:")
+    for elem in container_used_for.to_verbs_dic:
+        print(elem, container_used_for.to_verbs_dic[elem])
+
+    print("\n\nfoods cooked by:")
+    for elem in food_cooked_by.to_verbs_dic:
+        print(elem, food_cooked_by.to_verbs_dic[elem])
+    print(len(food_cooked_by.to_verbs_dic))
+
     contains_edge.analyze_and_convert_data()
-    w_csv.write_container_to_csv(contains_edge.csv_data, "contains.csv")
+    w_csv.write_to_csv(list(contains_edge.csv_data[0].keys()), contains_edge.csv_data, "knowledge_base/contains.csv")
 
     container_used_for.analyze_and_convert_data("Container")
-    w_csv.write_verbs_to_describe_to_csv('Container', container_used_for.csv_data, "container_used_for.csv")
+    w_csv.write_to_csv(list(container_used_for.csv_data[0].keys()), container_used_for.csv_data,
+                       "knowledge_base/container_used_for.csv")
 
     food_cooked_by.analyze_and_convert_data("Food")
-    w_csv.write_verbs_to_describe_to_csv('Food', food_cooked_by.csv_data, "food_cooked_by.csv")
+    w_csv.write_to_csv(list(food_cooked_by.csv_data[0].keys()), food_cooked_by.csv_data,
+                       "knowledge_base/food_cooked_by.csv")

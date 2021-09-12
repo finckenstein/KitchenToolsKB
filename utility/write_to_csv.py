@@ -1,24 +1,22 @@
 import csv
 
 
-class WriteToCSV:
-    def __init__(self, fields):
-        self.field_to_write = fields
+def write_to_csv(fields, data, filename):
+    with open(filename, 'w') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(data)
 
-    def write_to_csv(self, data, filename):
-        with open(filename, 'w') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=self.field_to_write)
-            writer.writeheader()
-            writer.writerows(data)
 
-    def write_csv_header(self, filename):
-        with open(filename, 'w') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=self.field_to_write)
-            writer.writeheader()
+def write_csv_header(fields, filename):
+    with open(filename, 'w') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fields)
+        writer.writeheader()
 
-    def append_to_csv(self, data, filename):
-        with open(filename, 'a') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=self.field_to_write)
-            writer.writerows(data)
+
+def append_to_csv(fields, data, filename):
+    with open(filename, 'a') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fields)
+        writer.writerows(data)
 
 

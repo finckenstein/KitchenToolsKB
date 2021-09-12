@@ -10,8 +10,8 @@ cutlery_cv = ['fork', 'knife', 'spoon', 'chopsticks', 'person']
 
 eating_container_cv = ['bowl', 'plate']
 
-synonymous_kitchenware = {'pan': ['skillet'],  # 914 + 359 = 1273
-                          'pot': ['saucepan'],  # 584 + 193 = 777
+synonymous_kitchenware = {'pan': ['skillet', 'saucepan'],  # 914 + 359 + 193= 1466
+                          'pot': [],  # 584
                           'baking dish': ['foil dish', 'casserole', 'baking form'],  # 121 + 1 + 14 + 0 = 136
                           'baking sheet': ['sheet pan', 'baking rack'],  # 449 + 20 + 9 = 478
                           'grill': ['griddle', 'barbecue', 'bbq'],  # 42 + 19 + 15 + 5 = 81

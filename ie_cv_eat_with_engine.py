@@ -5,7 +5,7 @@ import os
 
 import database_query as db
 from utility import paths as path, video_utility_functions as vid
-from utility.write_to_csv import WriteToCSV
+from utility import write_to_csv as write_csv
 from computer_vision import make_inference_from_cv as inference
 from computer_vision.tensorflow_object_detection_utils import ops as utils_ops
 from computer_vision.tensorflow_object_detection_utils import label_map_util
@@ -75,8 +75,7 @@ if __name__ == '__main__':
                    'Most_Accurate_Container', 'Most_Occurring_Container', 'Last_Detected_Container', 'All_Containers',
                    'Most_Accurate_Glass', 'Most_Occurring_Glass', 'Last_Detected_Glass', 'All_Glasses',
                    'Potential Foods', 'Other detections']
-    store_in_csv = WriteToCSV(csv_headers)
-    store_in_csv.write_csv_header('knowledge_base/eaten_with.csv')
+    write_csv.write_csv_header(csv_headers, 'eaten_with.csv')
 
     i = 0
     for recipe in recipes:
@@ -90,7 +89,7 @@ if __name__ == '__main__':
         analyze_video(video_file, video_length, eat_with, coco_model, coco_categories, kt_model, kt_category)
 
         eat_with.analyze_data_and_convert_to_csv()
-        store_in_csv.append_to_csv(eat_with.csv_data, "knowledge_base/eaten_with.csv")
+        write_csv.append_to_csv(csv_headers, eat_with.csv_data, "eaten_with.csv")
 
         print("\n\n\niteration: ", i, " is over. Analyzed video: ", recipe[db.RecipeWithVideoI.VIDEO_ID])
         print_findings(eat_with.csv_data[0])

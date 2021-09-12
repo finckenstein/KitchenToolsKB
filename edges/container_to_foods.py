@@ -1,5 +1,5 @@
 from utility.partition_tools import synonymous_kitchenware
-from edges.utensils_to import get_5_most
+from edges.to_verbs import get_top_5
 
 
 def get_concepts(dic):
@@ -48,11 +48,14 @@ class ContainerToFoods:
     def analyze_and_convert_data(self):
         for kitchenware in self.contains:
             foods = self.contains[kitchenware]
+            sorted_foods = dict(sorted(foods.items(), key=lambda item: item[1]['Counter'], reverse=True))
+
             concepts = get_concepts(self.contains[kitchenware])
+            sorted_concepts = dict(sorted(concepts.items(), key=lambda item: item[1]['Counter'], reverse=True))
             self.csv_data.append({'Container': kitchenware,
-                                  'Foods': foods,
-                                  'Top 5 Foods': get_5_most(foods, 'Counter', 'Food'),
+                                  'Foods': sorted_foods,
+                                  'Top 5 Foods': get_top_5(sorted_foods, 'Counter'),
                                   'Number of Foods Contained': get_sum(foods),
-                                  'ConceptFoods': concepts,
-                                  'Top 5 ConceptFoods': get_5_most(foods, 'Counter', 'ConceptFoods'),
+                                  'ConceptFoods': sorted_concepts,
+                                  'Top 5 ConceptFoods': get_top_5(sorted_concepts, 'Counter'),
                                   'Number of ConceptFoods Contained': get_sum(concepts)})
