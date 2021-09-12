@@ -6,7 +6,7 @@ def find_most_accurate_for_each(dic):
     tmp_tools = {}
     for tool in dic:
         print(dic[tool])
-        tmp_tools[tool] = {'Top Accuracy': max(dic[tool]), 'Occurrence': get_average(dic[tool])}
+        tmp_tools[tool] = {'Top Accuracy': max(dic[tool]), 'Occurrence': len(dic[tool])}
     return tmp_tools
 
 
@@ -29,10 +29,10 @@ def get_other_most_accurate(most_accurate_dic, cutlery_with_most_most_accurate):
     tmp_cutlery = {'Cutlery': None, 'Accuracy': -1}
 
     for cutlery in cutlery_with_most_most_accurate:
-        if (cutlery != most_accurate_dic['Cutlery'] and cutlery_with_most_most_accurate[cutlery] > 59
-                and cutlery_with_most_most_accurate[cutlery] > tmp_cutlery['Accuracy']):
+        if (cutlery != most_accurate_dic['Cutlery'] and cutlery_with_most_most_accurate[cutlery]['Top Accuracy'] > 55
+                and cutlery_with_most_most_accurate[cutlery]['Top Accuracy'] > tmp_cutlery['Accuracy']):
             tmp_cutlery['Cutlery'] = cutlery
-            tmp_cutlery['Accuracy'] = cutlery_with_most_most_accurate[cutlery]
+            tmp_cutlery['Accuracy'] = cutlery_with_most_most_accurate[cutlery]['Top Accuracy']
 
     if tmp_cutlery['Cutlery'] is not None:
         other_most_accurate.append(tmp_cutlery)

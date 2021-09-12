@@ -1,25 +1,25 @@
 container_cv = ['bowl', 'pan', 'pot', 'cutting-board', 'plate', 'baking-sheet', 'baking-dish', 'blender',
-                  'food-container', 'baking-form', 'baking-rack', 'cupcake-tin']
+                'food-container', 'baking-form', 'baking-rack', 'cupcake-tin']
 
 utensils_cv = ['pinch-bowl', 'silicone-spatula', 'jug', 'lepel', 'tongs', 'wooden-spatula', 'whisk', 'fork', 'spoon',
-            'knife', 'mixer', 'measuring-cup', 'turner', 'sieve', 'peeler', 'rolling-pin',
-            'brush', 'skimmer', 'ladle', 'scoop', 'grater', 'icing-spatula', 'pepper-mill', 'hammer', 'chopsticks',
-            'oil-dispenser', 'lid', 'squeezer', 'jar', 'oven-glove', 'masher', 'pizza-cutter']
+               'knife', 'mixer', 'measuring-cup', 'turner', 'sieve', 'peeler', 'rolling-pin',
+               'brush', 'skimmer', 'ladle', 'scoop', 'grater', 'icing-spatula', 'pepper-mill', 'hammer', 'chopsticks',
+               'oil-dispenser', 'lid', 'squeezer', 'jar', 'oven-glove', 'masher', 'pizza-cutter']
 
 cutlery_cv = ['fork', 'knife', 'spoon', 'chopsticks', 'person']
 
 eating_container_cv = ['bowl', 'plate']
 
-synonymous_kitchenware = {'pan': ['skillet'], #914 + 359 = 1273
-                          'pot': ['saucepan'], #584 + 193 = 777
-                          'baking dish': ['foil dish', 'casserole', 'baking form'], #121 + 1 + 14 + 0 = 136
-                          'baking sheet': ['sheet pan', 'baking rack'], #449 + 20 + 9 = 478
-                          'grill': ['griddle', 'barbecue', 'bbq'], #42 + 19 + 15 + 5 = 81
-                          'blender': [], # 210
-                          'cupcake tin': [], #1
-                          'cutting board': [], #111
-                          'bowl': ['food container'], #1199 + 0 = 1199
-                          'plate': []} #166
+synonymous_kitchenware = {'pan': ['skillet'],  # 914 + 359 = 1273
+                          'pot': ['saucepan'],  # 584 + 193 = 777
+                          'baking dish': ['foil dish', 'casserole', 'baking form'],  # 121 + 1 + 14 + 0 = 136
+                          'baking sheet': ['sheet pan', 'baking rack'],  # 449 + 20 + 9 = 478
+                          'grill': ['griddle', 'barbecue', 'bbq'],  # 42 + 19 + 15 + 5 = 81
+                          'blender': [],  # 210
+                          'cupcake tin': [],  # 1
+                          'cutting board': [],  # 111
+                          'bowl': ['food container'],  # 1199 + 0 = 1199
+                          'plate': []}  # 166
 
 coco_foods = ['cake', 'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut']
 

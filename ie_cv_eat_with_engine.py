@@ -37,13 +37,13 @@ def print_findings(dic):
 
 def analyze_video(vid_file, vid_dur, eaten_with, cv_coco_modl, coco_category, cv_kt_model, kt_cat):
     cap = cv2.VideoCapture(path.PATH_TO_VIDEOS + vid_file)
-    frm_rate = cap.set(cv2.CAP_PROP_POS_MSEC, (vid_dur - 13.5) * 1000) # 12
+    frm_rate = cap.set(cv2.CAP_PROP_POS_MSEC, (vid_dur - 14) * 1000) # 12
 
     while cap.isOpened():
-        coco_found_tools = inference.make_inference_for_ew(cap, cv_coco_modl, frm_rate, coco_category, 0.49, 1, vid_dur)
+        coco_found_tools = inference.make_inference_for_ew(cap, cv_coco_modl, frm_rate, coco_category, 0.47, 1, vid_dur)
         print("coco found tools: ", coco_found_tools)
 
-        kt_cv_found_tools = inference.make_inference_for_ew(cap, cv_kt_model, frm_rate, kt_cat, 0.49, 1, vid_dur)
+        kt_cv_found_tools = inference.make_inference_for_ew(cap, cv_kt_model, frm_rate, kt_cat, 0.47, 1, vid_dur)
         print("kt found tools: ", kt_cv_found_tools)
 
         if not coco_found_tools[0] or not kt_cv_found_tools[0]:
@@ -80,8 +80,9 @@ if __name__ == '__main__':
 
     i = 0
     for recipe in recipes:
+        # if recipe[db.RecipeWithVideoI.VIDEO_ID] == 98:
         eat_with = CutleryToRecipe(recipe[db.RecipeWithVideoI.URL],
-                                   recipe[db.RecipeWithVideoI.TITLE], recipe[db.RecipeWithVideoI.VIDEO_ID])
+                                    recipe[db.RecipeWithVideoI.TITLE], recipe[db.RecipeWithVideoI.VIDEO_ID])
 
         video_file = vid.get_video_file(files, recipe[db.RecipeWithVideoI.VIDEO_ID])
         video_length = vid.get_video_length(path.PATH_TO_VIDEOS + video_file)
