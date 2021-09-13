@@ -1,25 +1,42 @@
 import utility.apis.word_net_api as word_net
 
 
-def get_top_5(sorted_v, score_to_use):
-    if len(sorted_v) == 0:
-        return
-
+def get_max(score_to_use, sorted_v):
     if score_to_use == 'Counter':
         assert sorted_v == dict(sorted(sorted_v.items(), key=lambda item: item[1]['Counter'], reverse=True))
-        maxi = list(sorted_v.values())[0]['Counter']
+        return list(sorted_v.values())[0]['Counter']
+    elif score_to_use == 'Validity Score':
+        assert sorted_v == dict(sorted(sorted_v.items(), key=lambda item: item[1]['Validity Score'], reverse=True))
+        return list(sorted_v.values())[0]['Validity Score']
+    elif score_to_use == 'Reliability Score':
+        assert sorted_v == dict(sorted(sorted_v.items(), key=lambda item: item[1]['Reliability Score'], reverse=True))
+        return list(sorted_v.values())[0]['Reliability Score']
     else:
         assert sorted_v == dict(sorted(sorted_v.items(), key=lambda item: item[1], reverse=True))
-        maxi = max(sorted_v.values())
+        return max(sorted_v.values())
 
+
+def get_score(score_to_use, dic):
+    if score_to_use == 'Counter':
+        return dic['Counter']
+    elif score_to_use == 'Reliability Score':
+        return dic['Reliability Score']
+    elif score_to_use == 'Validity Score':
+        return dic['Validity Score']
+    else:
+        return dic
+
+
+def get_top_5(sorted_v, score_to_use):
+    if len(sorted_v) == 0:
+        return {}
+
+    maxi = get_max(score_to_use, sorted_v)
     counter = 0
     top_5_dict = {}
 
     for elem in sorted_v:
-        if score_to_use == 'Counter':
-            score = sorted_v[elem]['Counter']
-        else:
-            score = sorted_v[elem]
+        score = get_score(score_to_use, sorted_v[elem])
 
         if maxi != score:
             counter += 1
@@ -65,10 +82,11 @@ class ToVerbs:
 
     def analyze_and_convert_data(self, util_or_container):
         for tool in self.to_verbs_dic:
+            print("\ntool: ", tool)
             verbs = self.to_verbs_dic[tool]
             sorted_verbs = dict(sorted(verbs.items(), key=lambda item: item[1], reverse=True))
             top_5_verbs = get_top_5(sorted_verbs, '')
-            print("\n\n Top 5 verbs: ", top_5_verbs)
+            print("Top 5 verbs: ", top_5_verbs)
             self.csv_data.append({util_or_container: tool,
                                   "Verbs": sorted_verbs,
                                   "Top 5 Verbs": top_5_verbs,

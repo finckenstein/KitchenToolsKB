@@ -1,4 +1,5 @@
 import utility.apis.word_net_api as word_net
+from edges.to_verbs import get_top_5
 
 
 def get_concepts(dic):
@@ -24,85 +25,26 @@ def get_concepts(dic):
         acc = tmp[concept]['Accuracy']
         counter = tmp[concept]['Counter']
         tmp[concept]['Accuracy'] = acc / counter
+        tmp[concept]['Reliability Score'] = tmp[concept]['Accuracy'] + tmp[concept]['Counter']
+        tmp[concept]['Validity Score'] = ((tmp[concept]['Is CV in Sync With Text'] / tmp[concept]['Counter']) +
+                                          tmp[concept]['Is Tool Meant'])
 
     return tmp
 
 
-def get_parts_of_dict(whole_dict, food_key, score, score_name, verb_or_food):
-    if score_name == 'Validity Score' or score_name == 'Reliability Score':
-        return {verb_or_food: food_key,
-                score_name: score,
-                'Accuracy': whole_dict[food_key]['Accuracy'],
-                'Counter': whole_dict[food_key]['Counter'],
-                'Is CV in Sync With Text': whole_dict[food_key]['Is CV in Sync With Text'],
-                'Is Tool Meant': whole_dict[food_key]['Is Tool Meant']}
-    else:
-        return {verb_or_food: food_key, score_name: score}
-
-
-def convert_dict_structure(list_of_dicts, key_name, score_name):
-    if score_name == 'Validity Score' or score_name == 'Reliability Score':
-        tmp = {}
-        for dic in list_of_dicts:
-            tmp[dic[key_name]] = {score_name: dic[score_name], 'Accuracy': dic['Accuracy'], 'Counter': dic['Counter'],
-                                  'Is CV in Sync With Text': dic['Is CV in Sync With Text'],
-                                  'Is Tool Meant': dic['Is Tool Meant']}
-        return tmp
-
-    else:
-        tmp = {}
-        for dic in list_of_dicts:
-            tmp[dic[key_name]] = dic[score_name]
-        return tmp
-
-
-def get_score(score_name, dict_vals):
-    if score_name == 'Validity Score':
-        score = (dict_vals['Is CV in Sync With Text'] / dict_vals['Counter'])
-        score += dict_vals['Is Tool Meant']
-        return score
-    elif score_name == 'Reliability Score':
-        return dict_vals['Accuracy'] + dict_vals['Counter']
-    elif score_name == 'Counter':
-        return dict_vals['Counter']
-    else:
-        return dict_vals
-
-
-def initialize_empty_dict(score_name, verb_or_food):
-    if score_name == 'Validity Score' or score_name == 'Reliability Score':
-        return {verb_or_food: None, score_name: -1, 'Accuracy': -1, 'Counter': -1, 'Is CV in Sync With Text': -1,
-                'Is Tool Meant': -1}
-    else:
-        return {verb_or_food: None, score_name: -1}
-
-
-def get_5_most(verb_or_food_dic, score_name, verb_or_food):
-    maxi = sec_maxi = third_maxi = four_maxi = fifth_maxi = initialize_empty_dict(score_name, verb_or_food)
-    for verb_or_food_key in verb_or_food_dic:
-        score = get_score(score_name, verb_or_food_dic[verb_or_food_key])
-
-        if score > maxi[score_name]:
-            fifth_maxi = four_maxi
-            four_maxi = third_maxi
-            third_maxi = sec_maxi
-            sec_maxi = maxi
-            maxi = get_parts_of_dict(verb_or_food_dic, verb_or_food_key, score, score_name, verb_or_food)
-        elif score > sec_maxi[score_name]:
-            fifth_maxi = four_maxi
-            four_maxi = third_maxi
-            third_maxi = sec_maxi
-            sec_maxi = get_parts_of_dict(verb_or_food_dic, verb_or_food_key, score, score_name, verb_or_food)
-        elif score > third_maxi[score_name]:
-            fifth_maxi = four_maxi
-            four_maxi = third_maxi
-            third_maxi = get_parts_of_dict(verb_or_food_dic, verb_or_food_key, score, score_name, verb_or_food)
-        elif score > four_maxi[score_name]:
-            fifth_maxi = four_maxi
-            four_maxi = get_parts_of_dict(verb_or_food_dic, verb_or_food_key, score, score_name, verb_or_food)
-        elif score > fifth_maxi[score_name]:
-            fifth_maxi = get_parts_of_dict(verb_or_food_dic, verb_or_food_key, score, score_name, verb_or_food)
-    return convert_dict_structure([maxi, sec_maxi, third_maxi, four_maxi, fifth_maxi], verb_or_food, score_name)
+def calculate_validity_and_reliability_score(dic_of_utensil):
+    tmp = {}
+    for verb_or_food in dic_of_utensil:
+        tmp[verb_or_food] = {'Accuracy': dic_of_utensil[verb_or_food]['Accuracy'],
+                             'Is CV in Sync With Text': dic_of_utensil[verb_or_food]['Is CV in Sync With Text'],
+                             'Is Tool Meant': dic_of_utensil[verb_or_food]['Is Tool Meant'],
+                             'Counter': dic_of_utensil[verb_or_food]['Counter'],
+                             'Reliability Score': (dic_of_utensil[verb_or_food]['Accuracy'] +
+                                                   dic_of_utensil[verb_or_food]['Counter']),
+                             'Validity Score': ((dic_of_utensil[verb_or_food]['Is CV in Sync With Text'] /
+                                                 dic_of_utensil[verb_or_food]['Counter']) +
+                                                dic_of_utensil[verb_or_food]['Is Tool Meant'])}
+    return tmp
 
 
 class UtensilsTo:
@@ -177,14 +119,15 @@ class UtensilsToVerbs(UtensilsTo):
         self.update_accuracy()
         print("\n\n\n", self.utensils_to)
         for utensil in self.utensils_to:
-            verbs = self.utensils_to[utensil]
-            most_valid_verbs = get_5_most(verbs, 'Validity Score', 'Verb')
-            most_reliable_verbs = get_5_most(verbs, 'Reliability Score', 'Verb')
+            verbs = calculate_validity_and_reliability_score(self.utensils_to[utensil])
+            sorted_verbs = dict(sorted(verbs.items(), key=lambda item: item[1]['Validity Score'], reverse=True))
+            most_valid_verbs = get_top_5(sorted_verbs, 'Validity Score')
+            most_reliable_verbs = get_top_5(sorted_verbs, 'Reliability Score')
             self.csv_data.append({'Utensil': utensil,
-                                  'Verbs': verbs,
+                                  'Verbs': sorted_verbs,
                                   'Top 5 most Valid Verbs': most_valid_verbs,
                                   'Top 5 most Reliable Verbs': most_reliable_verbs,
-                                  'Antonyms': word_net.get_antonyms_from_dic(verbs, True),
+                                  'Antonyms': word_net.get_antonyms_from_dic(sorted_verbs, True),
                                   'Antonyms of Top 5 most Valid Verbs': word_net.get_antonyms_from_dic(
                                       most_valid_verbs, True),
                                   'Antonyms of Top 5 most Reliable Verbs': word_net.get_antonyms_from_dic(
@@ -214,14 +157,16 @@ class UtensilsToFoods(UtensilsTo):
         self.update_accuracy()
         print("\n\n\n", self.utensils_to)
         for utensil in self.utensils_to:
-            foods = self.utensils_to[utensil]
+            foods = calculate_validity_and_reliability_score(self.utensils_to[utensil])
+            sorted_foods = dict(sorted(foods.items(), key=lambda item: item[1]['Validity Score'], reverse=True))
+
             concepts = get_concepts(self.utensils_to[utensil])
+            sorted_concepts = dict(sorted(concepts.items(), key=lambda item: item[1]['Validity Score'], reverse=True))
+
             self.csv_data.append({'Utensil': utensil,
-                                  'Foods': foods,
-                                  'Top 5 most Valid Foods': get_5_most(foods, 'Validity Score', 'Food'),
-                                  'Top 5 most Reliable Foods': get_5_most(foods, 'Reliability Score', 'Food'),
-                                  'ConceptFoods': concepts,
-                                  'Top 5 most Valid ConceptFoods': get_5_most(concepts, 'Validity Score',
-                                                                              'ConceptFoods'),
-                                  'Top 5 most Reliable ConceptFoods': get_5_most(concepts, 'Reliability Score',
-                                                                                 'ConceptFoods')})
+                                  'Foods': sorted_foods,
+                                  'Top 5 most Valid Foods': get_top_5(sorted_foods, 'Validity Score'),
+                                  'Top 5 most Reliable Foods': get_top_5(sorted_foods, 'Reliability Score'),
+                                  'ConceptFoods': sorted_concepts,
+                                  'Top 5 most Valid ConceptFoods': get_top_5(concepts, 'Validity Score'),
+                                  'Top 5 most Reliable ConceptFoods': get_top_5(concepts, 'Reliability Score')})

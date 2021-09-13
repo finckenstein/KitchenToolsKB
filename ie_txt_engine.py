@@ -87,8 +87,6 @@ if __name__ == '__main__':
         print("\n: Recipe ", i, ": ", recipe[db.RecipeI.PREPARATION])
         parse_recipe(recipe[db.RecipeI.PREPARATION], nlp, contains_edge, kitchenware_tracker, container_used_for,
                      food_cooked_by, track_concept_net_results)
-        if i == 3:
-            break
         i += 1
 
     print("\n\nconceptNet stored: ")

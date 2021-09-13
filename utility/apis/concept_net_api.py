@@ -29,8 +29,7 @@ class TrackConceptsFound:
 
     def get_concepts_for_noun(self, noun):
         if noun in self.noun_to_concepts:
-            if len(self.noun_to_concepts[noun]['Concepts']) > 0:
-                self.noun_to_concepts[noun]['Counter'] += 1
+            self.noun_to_concepts[noun]['Counter'] += 1
             return self.noun_to_concepts[noun]['Concepts']
         else:
             return None

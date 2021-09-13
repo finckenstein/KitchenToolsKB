@@ -5,6 +5,8 @@ nlp = spacy.load("en_core_web_trf")
 
 
 def get_top_5(sorted_v):
+    if len(sorted_v) == 0:
+        return {}
     assert sorted_v == dict(sorted(sorted_v.items(), key=lambda item: item[1], reverse=True))
     maxi = max(sorted_v.values())
     counter = 0
@@ -24,6 +26,8 @@ def get_top_5(sorted_v):
 
 
 def get_antonyms_from_dic(verbs_dic, has_counter):
+    if verbs_dic is None:
+        return {}
     antonyms_of_tool = {}
     for verb_key in verbs_dic:
         if has_counter:
@@ -53,14 +57,14 @@ if __name__ == "__main__":
     # for sentence in sentences:
     #     for token in sentence:
     #         print(token.text, token.pos_, token.dep_)
-    dic = {'flip': 10, 'add': 20, 'turn': 15, 'cook': 12, 'simmer': 19, 'bake': 1, 'toast': 11, 'help': 1, 'firm': 1, 'collapse': 100}
+    dic = {}
     sorted_dict = dict(sorted(dic.items(), key=lambda item: item[1], reverse=True))
     print("\n\n", sorted_dict, "\n\n")
 
     top_5 = get_top_5(sorted_dict)
     print(top_5)
 
-    print("\n\n", get_antonyms_from_dic({None: 1, 'spoon': 1, 'slide': 1, 'top': 1, 'bake': 1, 'be': 1, 'start': 1}, False))
+    print("\n\n", get_antonyms_from_dic(sorted_dict, False))
     print("\n\n", get_antonyms_from_dic(top_5, False))
 
 

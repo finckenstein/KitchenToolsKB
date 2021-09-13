@@ -171,7 +171,7 @@ if __name__ == '__main__':
             i += 1
 
     util_used_for.analyze_verbs_and_convert_to_csv()
-    w_csv.write_utensil_verb_to_csv(util_used_for.csv_data, "utensils_used_for.csv")
+    w_csv.write_to_csv(list(util_used_for.csv_data.keys()), util_used_for.csv_data, "utensils_used_for.csv")
 
     used_to_prepare.analyze_foods_and_convert_to_csv()
-    w_csv.write_utensil_foods_to_csv(used_to_prepare.csv_data, "utensils_used_to_prepare.csv")
+    w_csv.write_to_csv(list(used_to_prepare.csv_data.keys()), used_to_prepare.csv_data, "utensils_used_to_prepare.csv")
