@@ -38,19 +38,31 @@ def get_detected_utensils(cv_dict, txt_container, sync):
     for container in cv_dict:
         if container is None:
             for utensil in cv_dict[None]:
-                assert utensil not in utensils, "utensil gotten from cv should be unique"
-                utensils[utensil] = {}
-                utensils[utensil]['Accuracy'] = cv_dict[None][utensil]
-                utensils[utensil]['CV is in Sync with TXT'] = is_in_sync
-                utensils[utensil]['Utensil is meant'] = 0
+                if utensil in utensils:
+                    utensils[utensil]['Accuracy'] += cv_dict[None][utensil]
+                    utensils[utensil]['CV is in Sync with TXT'] += is_in_sync
+                    utensils[utensil]['Counter'] += 1
+                else:
+                    utensils[utensil] = {}
+                    utensils[utensil]['Accuracy'] = cv_dict[None][utensil]
+                    utensils[utensil]['CV is in Sync with TXT'] = is_in_sync
+                    utensils[utensil]['Utensil is meant'] = 0
+                    utensils[utensil]['Counter'] = 1
+
         elif len(cv_dict[container]) > 0:
             for utensil in cv_dict[container]:
                 overlaps = does_current_cv_container_match_txt(txt_container, container)
-                assert utensil not in utensils, "utensil gotten from cv should be unique"
-                utensils[utensil] = {}
-                utensils[utensil]['Accuracy'] = cv_dict[container][utensil]
-                utensils[utensil]['CV is in Sync with TXT'] = is_in_sync
-                utensils[utensil]['Utensil is meant'] = overlaps
+                if utensil in utensils:
+                    utensils[utensil]['Accuracy'] += cv_dict[container][utensil]
+                    utensils[utensil]['CV is in Sync with TXT'] += is_in_sync
+                    utensils[utensil]['Utensil is meant'] += overlaps
+                    utensils[utensil]['Counter'] += 1
+                else:
+                    utensils[utensil] = {}
+                    utensils[utensil]['Accuracy'] = cv_dict[container][utensil]
+                    utensils[utensil]['CV is in Sync with TXT'] = is_in_sync
+                    utensils[utensil]['Utensil is meant'] = overlaps
+                    utensils[utensil]['Counter'] = 1
     return utensils
 
 
@@ -75,21 +87,23 @@ def analyze_sentence(sen, utp, k, uuf, track_concepts, verbs, s):
         token = sen[sen_i]
         word = sen[sen_i].lemma_.lower()
         print("\n\n\n", word)
-        if token.pos_ == "VERB" and token.dep_ != "xcomp" and word not in verbs:
+        if token.pos_ == "VERB" and token.dep_ != "xcomp":
             verbs.append(word)
         elif token.pos_ == "NOUN":
             if k.check_explicit_change_in_kitchenware(token, word, sen, sen_i):
                 print("kitchenware explicitly to: ", k.cur_kitchenware)
 
             if token.dep_ == "compound" and sen_i + 1 < len(sen):
-                compound_word = word + " " + sen[sen_i + 1].lemma_.lower()
+                compound_word = word + "_" + sen[sen_i + 1].lemma_.lower()
                 handle_potential_food(compound_word, track_concepts)
 
             handle_potential_food(word, track_concepts)
 
         print("current txt kitchenware: ", k.cur_kitchenware)
+
         cv_kitchenware_dict = s.get_cv_detected_tool()
         print("cv detected: ", cv_kitchenware_dict)
+
         utensils_detected = get_detected_utensils(cv_kitchenware_dict, k.cur_kitchenware, s)
         print("utensils to be used: ", utensils_detected)
 
@@ -143,35 +157,28 @@ if __name__ == '__main__':
 
     i = 1
     for recipe in recipe_rows:
-        # print("\n\n\n", recipe)
-        if recipe[db.RecipeWithVideoI.VIDEO_ID] == 0:
-            print("VIDEO ID: ", recipe[db.RecipeWithVideoI.VIDEO_ID], " for recipe: ", recipe[db.RecipeWithVideoI.URL])
+        print("VIDEO ID: ", recipe[db.RecipeWithVideoI.VIDEO_ID], " for recipe: ", recipe[db.RecipeWithVideoI.URL])
 
-            # vide 0: cv_detected_kitchenware_per_second_of_vid = [{None: {'sieve': 52}}, {None: {'turner': 41}}, {None: {'sieve': 50}}, {None: {'whisk': 45}}, {None: {'whisk': 49}}, {None: {'whisk': 47}}, {}, {None: {'pinch-bowl': 49}}, {'bowl': ''}, {'bowl': {'pinch-bowl': 43}}, {}, {}, {'bowl': ''}, {None: {'jar': 41}}, {'blender': ''}, {'bowl': ''}, {'blender': ''}, {}, {None: {'silicone-spatula': 59}}, {'blender': ''}, {'blender': ''}, {'blender': ''}, {'blender': ''}, {'blender': {'whisk': 58}}, {'bowl': ''}, {'bowl': ''}, {'bowl': ''}, {'bowl': ''}, {}, {None: {'whisk': 63}}, {None: {'sieve': 52}}, {None: {'sieve': 58}}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': {'brush': 43}, 'bowl': ''}, {'bowl': '', 'baking-sheet': ''}, {'bowl': '', 'baking-sheet': ''}, {None: {'silicone-spatula': 52}}, {}, {None: {'sieve': 58}}, {None: {'silicone-spatula': 51}}, {None: {'turner': 40}}, {None: {'silicone-spatula': 42}}, {None: {'silicone-spatula': 40}}, {}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': {'pinch-bowl': 44}, 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {}, {'plate': ''}, {}, {'bowl': '', 'baking-sheet': ''}, {'bowl': '', 'baking-sheet': ''}, {'bowl': '', 'baking-sheet': '', 'food-container': ''}, {'bowl': ''}, {'bowl': ''}, {'baking-sheet': {'oven-glove': 60}, 'bowl': ''}, {'baking-sheet': {'oven-glove': 51}, 'bowl': ''}, {'baking-sheet': {'tongs': 60}, 'bowl': ''}, {'baking-sheet': {'tongs': 65}, 'bowl': ''}, {'baking-sheet': {'tongs': 43}, 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': {'tongs': 45}, 'bowl': ''}, {'plate': '', 'bowl': ''}, {'plate': '', 'bowl': ''}, {'bowl': ''}, {'bowl': ''}, {'plate': '', 'baking-dish': ''}, {'plate': '', 'baking-dish': '', 'bowl': ''}, {}, {None: {'whisk': 45}}, {None: {'whisk': 48}}, {None: {'silicone-spatula': 47}}, {'plate': ''}, {'plate': '', 'food-container': ''}, {'plate': ''}, {'plate': ''}, {None: {'sieve': 46}}, {None: {'whisk': 47, 'sieve': 41}}, {None: {'whisk': 65, 'sieve': 42}}, {None: {'whisk': 74}}, {None: {'whisk': 55, 'sieve': 50}}, {None: {'whisk': 45}}, {}, {}, {}, {}, {}, {}]
-            video_file = vid.get_video_file(files, recipe[db.RecipeWithVideoI.VIDEO_ID])
-            # cv_detected_kitchenware_per_second_of_vid = overlapping_tools.get_cv_tools_in_sequential_order(
-            #     video_file, model, category_index)
-            cv_detected_kitchenware_per_second_of_vid = [{None: {'sieve': 52}}, {None: {'turner': 41}}, {None: {'sieve': 50}}, {None: {'whisk': 45}}, {None: {'whisk': 49}}, {None: {'whisk': 47}}, {}, {None: {'pinch-bowl': 49}}, {'bowl': ''}, {'bowl': {'pinch-bowl': 43}}, {}, {}, {'bowl': ''}, {None: {'jar': 41}}, {'blender': ''}, {'bowl': ''}, {'blender': ''}, {}, {None: {'silicone-spatula': 59}}, {'blender': ''}, {'blender': ''}, {'blender': ''}, {'blender': ''}, {'blender': {'whisk': 58}}, {'bowl': ''}, {'bowl': ''}, {'bowl': ''}, {'bowl': ''}, {}, {None: {'whisk': 63}}, {None: {'sieve': 52}}, {None: {'sieve': 58}}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': {'brush': 43}, 'bowl': ''}, {'bowl': '', 'baking-sheet': ''}, {'bowl': '', 'baking-sheet': ''}, {None: {'silicone-spatula': 52}}, {}, {None: {'sieve': 58}}, {None: {'silicone-spatula': 51}}, {None: {'turner': 40}}, {None: {'silicone-spatula': 42}}, {None: {'silicone-spatula': 40}}, {}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': {'pinch-bowl': 44}, 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {}, {'plate': ''}, {}, {'bowl': '', 'baking-sheet': ''}, {'bowl': '', 'baking-sheet': ''}, {'bowl': '', 'baking-sheet': '', 'food-container': ''}, {'bowl': ''}, {'bowl': ''}, {'baking-sheet': {'oven-glove': 60}, 'bowl': ''}, {'baking-sheet': {'oven-glove': 51}, 'bowl': ''}, {'baking-sheet': {'tongs': 60}, 'bowl': ''}, {'baking-sheet': {'tongs': 65}, 'bowl': ''}, {'baking-sheet': {'tongs': 43}, 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': '', 'bowl': ''}, {'baking-sheet': {'tongs': 45}, 'bowl': ''}, {'plate': '', 'bowl': ''}, {'plate': '', 'bowl': ''}, {'bowl': ''}, {'bowl': ''}, {'plate': '', 'baking-dish': ''}, {'plate': '', 'baking-dish': '', 'bowl': ''}, {}, {None: {'whisk': 45}}, {None: {'whisk': 48}}, {None: {'silicone-spatula': 47}}, {'plate': ''}, {'plate': '', 'food-container': ''}, {'plate': ''}, {'plate': ''}, {None: {'sieve': 46}}, {None: {'whisk': 47, 'sieve': 41}}, {None: {'whisk': 65, 'sieve': 42}}, {None: {'whisk': 74}}, {None: {'whisk': 55, 'sieve': 50}}, {None: {'whisk': 45}}, {}, {}, {}, {}, {}, {}]
-            for elem in cv_detected_kitchenware_per_second_of_vid:
-                print(elem)
-            print(len(cv_detected_kitchenware_per_second_of_vid), cv_detected_kitchenware_per_second_of_vid)
+        video_file = vid.get_video_file(files, recipe[db.RecipeWithVideoI.VIDEO_ID])
+        cv_detected_kitchenware_per_second_of_vid = overlapping_tools.get_cv_tools_in_sequential_order(
+            video_file, model, category_index)
 
-            sync_text_with_video = Sync(recipe, nlp, cv_detected_kitchenware_per_second_of_vid)
-            parse_recipe(recipe[db.RecipeI.PREPARATION], nlp, used_to_prepare, kitchenware_tracker, util_used_for,
-                         track_concept_net_results, sync_text_with_video)
+        for elem in cv_detected_kitchenware_per_second_of_vid:
+            print(elem)
+        print(len(cv_detected_kitchenware_per_second_of_vid))
 
-            print("\n\n\niteration: ", i, " is over. Analyzed recipe: ", recipe[db.RecipeI.URL], ". All data so far:")
-            print("\n\nrecipe: ", recipe[db.RecipeI.PREPARATION])
-            print("\n\nutensil to food: ", used_to_prepare.utensils_to)
-            print("\n\nutensil used for: ", util_used_for.utensils_to)
-            print("\n\nconceptNet stored: ", track_concept_net_results.noun_to_concepts)
+        sync_text_with_video = Sync(recipe, nlp, cv_detected_kitchenware_per_second_of_vid)
+        parse_recipe(recipe[db.RecipeI.PREPARATION], nlp, used_to_prepare, kitchenware_tracker, util_used_for,
+                     track_concept_net_results, sync_text_with_video)
 
-            if i == 3:
-                break
-            i += 1
+        print("\n\n\niteration: ", i, " is over. Analyzed recipe: ", recipe[db.RecipeI.URL], ". All data so far:")
+        print("\n\nrecipe: ", recipe[db.RecipeI.PREPARATION])
+        print("\n\nutensil to food: ", used_to_prepare.utensils_to)
+        print("\n\nutensil used for: ", util_used_for.utensils_to)
+        print("\n\nconceptNet stored: ", track_concept_net_results.noun_to_concepts)
 
     util_used_for.analyze_verbs_and_convert_to_csv()
-    w_csv.write_to_csv(list(util_used_for.csv_data.keys()), util_used_for.csv_data, "utensils_used_for.csv")
+    w_csv.write_to_csv(list(util_used_for.csv_data[0].keys()), util_used_for.csv_data, "utensils_used_for.csv")
 
     used_to_prepare.analyze_foods_and_convert_to_csv()
-    w_csv.write_to_csv(list(used_to_prepare.csv_data.keys()), used_to_prepare.csv_data, "utensils_used_to_prepare.csv")
+    w_csv.write_to_csv(list(used_to_prepare.csv_data[0].keys()), used_to_prepare.csv_data, "utensils_used_to_prepare.csv")

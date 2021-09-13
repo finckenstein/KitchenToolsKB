@@ -4,12 +4,6 @@ import utility.partition_tools as pt
 from computer_vision import make_inference_from_cv as inference
 
 
-def get_tool(dic):
-    for key in dic:
-        return key
-    return None
-
-
 def get_range(dic_values, is_x_axis):
     if is_x_axis:
         return [*range(dic_values[2], dic_values[3], 1)]
@@ -54,7 +48,7 @@ def iterate_over_overlapping_tools(overlapping_tools, current_tool, overlapping_
     if len(overlapping_tools) >= 1:
 
         for consider_tool in overlapping_tools:
-            elem_tool = get_tool(consider_tool)
+            elem_tool = list(consider_tool.keys())[0]
             elem_score = consider_tool[elem_tool]
             # print(elem_tool)
 
@@ -185,7 +179,7 @@ def get_cv_tools_in_sequential_order(f, model, category_index):
 
     print("IN [get_cv_tools_in_sequential_order]")
     while cap.isOpened():
-        found_tools = inference.make_inference_for_ow(cap, model, frame_rate, category_index, 0.4, 1)
+        found_tools = inference.make_inference_for_ow(cap, model, frame_rate, category_index, 0.5, 1)
         if not found_tools[0]:
             break
 

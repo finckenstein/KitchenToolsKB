@@ -11,7 +11,7 @@ class ToolToTool:
             if tup_format1 not in self.location_tool_combination and tup_format2 not in self.location_tool_combination:
                 self.location_tool_combination[tup_format1] = {'Counter': 1,
                                                                'Accuracy': {tup_format1[0]: quad[1],
-                                                                            tup_format1[2]: quad[3]},
+                                                                            tup_format1[1]: quad[3]},
                                                                'Videos': [vid_file]}
             elif tup_format1 in self.location_tool_combination:
                 self.update_tool_list(tup_format1, quad[1], quad[3], vid_file)
@@ -28,9 +28,14 @@ class ToolToTool:
 
     def convert_data_to_csv(self):
         for tool_tuple in self.location_tool_combination:
+            acc1 = (self.location_tool_combination[tool_tuple]['Accuracy'][tool_tuple[0]] /
+                    self.location_tool_combination[tool_tuple]['Counter'])
+            acc2 = (self.location_tool_combination[tool_tuple]['Accuracy'][tool_tuple[1]] /
+                    self.location_tool_combination[tool_tuple]['Counter'])
+            print(acc1, acc2)
             self.csv_data.append({'Nodes': tool_tuple,
                                   'Occurrences': self.location_tool_combination[tool_tuple]['Counter'],
-                                  'Accuracy': {tool_tuple[0]: self.location_tool_combination[tool_tuple]['Accuracy'][tool_tuple[0]] / self.location_tool_combination[tool_tuple]['Counter'],
-                                               tool_tuple[1]: self.location_tool_combination[tool_tuple]['Accuracy'][tool_tuple[1]] / self.location_tool_combination[tool_tuple]['Counter']},
+                                  'Accuracy': {tool_tuple[0]: acc1,
+                                               tool_tuple[1]: acc2},
                                   'Video': self.location_tool_combination[tool_tuple]['Videos'],
                                   'Occurrences in Video': len(self.location_tool_combination[tool_tuple]['Videos'])})

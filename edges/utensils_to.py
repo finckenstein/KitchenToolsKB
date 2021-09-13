@@ -57,7 +57,6 @@ class UtensilsTo:
         self.csv_data = []
 
     def append_utensils_found(self, cv_utensil):
-        print("CV UTENSILS: ", cv_utensil)
         assert len(cv_utensil) > 0, "cv_utensil should be larger than 0"
 
         for utensil in cv_utensil:
@@ -66,14 +65,14 @@ class UtensilsTo:
                     'CV is in Sync with TXT']
                 self.utensils_in_sentence[utensil]['Overlaps'] += cv_utensil[utensil]['Utensil is meant']
                 self.utensils_in_sentence[utensil]['Accuracy'] += cv_utensil[utensil]['Accuracy']
-                self.utensils_in_sentence[utensil]['Counter'] += 1
+                self.utensils_in_sentence[utensil]['Counter'] += cv_utensil[utensil]['Counter']
             else:
                 self.utensils_in_sentence[utensil] = {}
                 self.utensils_in_sentence[utensil]['CV Container Matches Txt Container'] = cv_utensil[utensil][
                     'CV is in Sync with TXT']
                 self.utensils_in_sentence[utensil]['Overlaps'] = cv_utensil[utensil]['Utensil is meant']
                 self.utensils_in_sentence[utensil]['Accuracy'] = cv_utensil[utensil]['Accuracy']
-                self.utensils_in_sentence[utensil]['Counter'] = 1
+                self.utensils_in_sentence[utensil]['Counter'] = cv_utensil[utensil]['Counter']
 
     def increment_counter_in_dict(self, utensil, relation_with):
         self.utensils_to[utensil][relation_with]['Accuracy'] += self.utensils_in_sentence[utensil]['Accuracy']

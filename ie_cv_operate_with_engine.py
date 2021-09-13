@@ -2,7 +2,6 @@
 import tensorflow as tf
 import cv2
 import os
-import csv
 
 from utility import paths as path, video_utility_functions as vid, overlapping_tools_in_frame as overlap
 from utility import write_to_csv as w_csv
@@ -18,7 +17,7 @@ def open_capture(f, video_id, ow):
     frame_rate = cap.get(5)
 
     while cap.isOpened():
-        found_tools = inference.make_inference_for_ow(cap, detection_model, frame_rate, category_index, 0.5, 1)
+        found_tools = inference.make_inference_for_ow(cap, detection_model, frame_rate, category_index, 0.45, 1)
         if not found_tools[0]:
             break
         elif found_tools[1] is not None and len(found_tools[1]) > 0:
@@ -42,16 +41,15 @@ if __name__ == '__main__':
     for file in files:
         if '.mp4' in file:
             vid_id = vid.get_video_id(file)
-            print("VIDEO ID: ", vid_id)
+            if vid_id == 2:
+                open_capture(file, vid_id, operate_with)
 
-            open_capture(file, vid_id, operate_with)
-
-            print("\n\n\niteration ", i, " is over. Analyzed video: ", vid_id, ". location_tool_combination is:")
-            for k in operate_with.location_tool_combination:
-                print(k, operate_with.location_tool_combination[k])
-            print("\n\n\n")
-            i += 1
-            break
+                print("\n\n\niteration ", i, " is over. Analyzed video: ", vid_id, ". location_tool_combination is:")
+                for k in operate_with.location_tool_combination:
+                    print(k, operate_with.location_tool_combination[k])
+                print("\n\n\n")
+                i += 1
+                break
 
     operate_with.convert_data_to_csv()
     w_csv.write_to_csv(list(operate_with.csv_data[0].keys()), operate_with.csv_data, 'operate_with.csv')
