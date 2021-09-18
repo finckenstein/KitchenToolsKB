@@ -1,10 +1,10 @@
 container_cv = ['bowl', 'pan', 'pot', 'cutting-board', 'plate', 'baking-sheet', 'baking-dish', 'blender',
-                'food-container', 'baking-form', 'baking-rack', 'cupcake-tin']
+                'food-container', 'baking-form', 'baking-rack', 'cupcake-tin', 'jar']
 
 utensils_cv = ['pinch-bowl', 'silicone-spatula', 'jug', 'lepel', 'tongs', 'wooden-spatula', 'whisk', 'fork', 'spoon',
                'knife', 'mixer', 'measuring-cup', 'turner', 'sieve', 'peeler', 'rolling-pin',
                'brush', 'skimmer', 'ladle', 'scoop', 'grater', 'icing-spatula', 'pepper-mill', 'hammer', 'chopsticks',
-               'oil-dispenser', 'lid', 'squeezer', 'jar', 'oven-glove', 'masher', 'pizza-cutter']
+               'oil-dispenser', 'lid', 'squeezer', 'oven-glove', 'masher', 'pizza-cutter']
 
 cutlery_cv = ['fork', 'knife', 'spoon', 'chopsticks', 'person']
 
