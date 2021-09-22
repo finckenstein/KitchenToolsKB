@@ -43,7 +43,6 @@ def main():
     for predicted_container_with_food in extracted_knowledge_list:
         curr_container = predicted_container_with_food[0]
         assert curr_container not in evaluation, "container in extracted knowledge should be unique."
-
         predicted_concepts = ast.literal_eval(predicted_container_with_food[4])
         truthful_concepts = get_truth_concepts_for(curr_container, ground_truth_list)
         if truthful_concepts is None:
