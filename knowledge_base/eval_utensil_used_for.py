@@ -18,7 +18,6 @@ def get_synonyms(verbs):
 
 
 def get_true_verbs_for(utensil, ground_truths):
-    print(utensil)
     for true_utensil_verbs in ground_truths:
         if true_utensil_verbs[0] == utensil:
             return true_utensil_verbs[1].split(", ")
@@ -62,11 +61,12 @@ def main():
 
         true_verbs_for_utensil = get_true_verbs_for(curr_utensil, ground_truth_list)
         if true_verbs_for_utensil is None:
+            print("utensil not supported: ", curr_utensil)
             continue
 
         evaluation[curr_utensil] = evaluate_utensil(predicted_utensil_verbs, true_verbs_for_utensil)
 
-        print("current container: ", curr_utensil)
+        print("current utensil: ", curr_utensil)
         print("true verbs: ", true_verbs_for_utensil)
         print("correct verbs (true positive): ", list(evaluation[curr_utensil]['True Positive']))
         print("incorrect verbs (false positive): ", list(evaluation[curr_utensil]['False Positive']))

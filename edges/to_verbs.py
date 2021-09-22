@@ -69,16 +69,17 @@ class ToVerbs:
 
     def append_list_of_verbs(self, foods_in_sentence, verbs_in_sentence):
         for food in foods_in_sentence:
-            if food in self.to_verbs_dic:
-                for verb in verbs_in_sentence:
-                    if verb in self.to_verbs_dic[food]:
-                        self.to_verbs_dic[food][verb] += 1
-                    else:
-                        self.to_verbs_dic[food][verb] = 1
-            else:
-                self.to_verbs_dic[food] = {}
-                for verb in verbs_in_sentence:
-                    self.to_verbs_dic[food][verb] = 1
+            for concept in foods_in_sentence[food]:
+                if concept in self.to_verbs_dic:
+                    for verb in verbs_in_sentence:
+                        if verb in self.to_verbs_dic[concept]:
+                            self.to_verbs_dic[concept][verb] += 1
+                        else:
+                            self.to_verbs_dic[concept][verb] = 1
+                else:
+                    self.to_verbs_dic[concept] = {}
+                    for verb in verbs_in_sentence:
+                        self.to_verbs_dic[concept][verb] = 1
 
     def analyze_and_convert_data(self, util_or_container):
         for tool in self.to_verbs_dic:

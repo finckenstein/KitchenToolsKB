@@ -24,6 +24,7 @@ def get_concept(noun):
 class TrackConceptsFound:
     def __init__(self):
         self.noun_to_concepts = {}
+        self.food_to_concepts = {}
         self.foods_in_sentence = {}
         self.csv_data = []
 
@@ -38,13 +39,21 @@ class TrackConceptsFound:
         assert noun not in self.noun_to_concepts, "noun should not yet be in noun_to_concepts"
         self.noun_to_concepts[noun] = {'Concepts': concepts, 'Counter': 1}
 
+        if len(concepts) > 0:
+            for concept in concepts:
+                if concept in self.food_to_concepts:
+                    self.food_to_concepts[concept]['Ingredient'].append(noun)
+                    self.food_to_concepts[concept]['Counter'] += 1
+                else:
+                    self.food_to_concepts[concept] = {'Ingredient': [noun], 'Counter': 1}
+
     def update_concepts_in_sentence(self, noun, concepts):
         if noun not in self.foods_in_sentence:
             self.foods_in_sentence[noun] = concepts
 
     def analyze_and_prepare_data(self):
-        sorted_nouns = dict(sorted(self.noun_to_concepts.items(), key=lambda item: item[1]['Counter'], reverse=True))
-        for noun in sorted_nouns:
-            self.csv_data.append({'Noun': noun,
-                                  'Occurrences': sorted_nouns[noun]['Counter'],
-                                  'Concepts': sorted_nouns[noun]['Concepts']})
+        sorted_concepts = dict(sorted(self.food_to_concepts.items(), key=lambda item: item[1]['Counter'], reverse=True))
+        for concept in sorted_concepts:
+            self.csv_data.append({'Concept': concept,
+                                  'Occurrences': sorted_concepts[concept]['Counter'],
+                                  'Ingredient': sorted_concepts[concept]['Ingredient']})
