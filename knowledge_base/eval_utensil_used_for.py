@@ -68,9 +68,9 @@ def main():
 
         print("current utensil: ", curr_utensil)
         print("true verbs: ", true_verbs_for_utensil)
-        print("correct verbs (true positive): ", list(evaluation[curr_utensil]['True Positive']))
-        print("incorrect verbs (false positive): ", list(evaluation[curr_utensil]['False Positive']))
-        print("missing verbs (false negative): ", evaluation[curr_utensil]['False Negative'])
+        print("*** correct verbs (true positive): ", list(evaluation[curr_utensil]['True Positive']))
+        print("*** incorrect verbs (false positive): ", list(evaluation[curr_utensil]['False Positive']))
+        print("*** missing verbs (false negative): ", evaluation[curr_utensil]['False Negative'])
         print("true positive: ", len(evaluation[curr_utensil]['True Positive']))
         print("false positive: ", len(evaluation[curr_utensil]['False Positive']))
         print("false negative: ", len(evaluation[curr_utensil]['False Negative']))
