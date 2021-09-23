@@ -47,8 +47,8 @@ def main():
         utensil_list_csv.append({'Utensil': utensil,
                                  'Associated Food': utensil_to_food[utensil]})
 
-    write_to_csv(list(container_list_csv[0].keys()), container_list_csv, 'ground_truths/contains_truth.csv')
-    write_to_csv(list(utensil_list_csv[0].keys()), utensil_list_csv, 'ground_truths/utensils_used_to_prepare_truth.csv')
+    write_to_csv(list(container_list_csv[0].keys()), container_list_csv, 'old_contains_truth.csv')
+    write_to_csv(list(utensil_list_csv[0].keys()), utensil_list_csv, 'old_utensils_used_to_prepare_truth.csv')
 
 
 if __name__ == '__main__':
