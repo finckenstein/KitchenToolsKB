@@ -79,18 +79,18 @@ if __name__ == '__main__':
 
     i = 0
     for recipe in recipes:
-        # if recipe[db.RecipeWithVideoI.VIDEO_ID] == 98:
-        eat_with = CutleryToRecipe(recipe[db.RecipeWithVideoI.URL],
-                                    recipe[db.RecipeWithVideoI.TITLE], recipe[db.RecipeWithVideoI.VIDEO_ID])
+        if int(recipe[db.RecipeWithVideoI.VIDEO_ID]) == 110:
+            eat_with = CutleryToRecipe(recipe[db.RecipeWithVideoI.URL],
+                                        recipe[db.RecipeWithVideoI.TITLE], recipe[db.RecipeWithVideoI.VIDEO_ID])
 
-        video_file = vid.get_video_file(files, recipe[db.RecipeWithVideoI.VIDEO_ID])
-        video_length = vid.get_video_length(path.PATH_TO_VIDEOS + video_file)
+            video_file = vid.get_video_file(files, recipe[db.RecipeWithVideoI.VIDEO_ID])
+            video_length = vid.get_video_length(path.PATH_TO_VIDEOS + video_file)
 
-        analyze_video(video_file, video_length, eat_with, coco_model, coco_categories, kt_model, kt_category)
+            analyze_video(video_file, video_length, eat_with, coco_model, coco_categories, kt_model, kt_category)
 
-        eat_with.analyze_data_and_convert_to_csv()
-        write_csv.append_to_csv(csv_headers, eat_with.csv_data, "eaten_with.csv")
+            eat_with.analyze_data_and_convert_to_csv()
+            write_csv.append_to_csv(csv_headers, eat_with.csv_data, "eaten_with.csv")
 
-        print("\n\n\niteration: ", i, " is over. Analyzed video: ", recipe[db.RecipeWithVideoI.VIDEO_ID])
-        print_findings(eat_with.csv_data[0])
-        i += 1
+            print("\n\n\niteration: ", i, " is over. Analyzed video: ", recipe[db.RecipeWithVideoI.VIDEO_ID])
+            print_findings(eat_with.csv_data[0])
+            i += 1
