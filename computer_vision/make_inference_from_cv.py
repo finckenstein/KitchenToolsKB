@@ -101,7 +101,7 @@ def make_inference_for_ow(capture, model, fr, category_index, accuracy, get_what
         output_dict = run_inference_for_single_image(model, image_np)
 
         # Visualization of the results of a detection.
-        # show_image(image_np, output_dict, category_index, accuracy)
+        show_image(image_np, output_dict, category_index, accuracy)
 
         detection = make_inference(image_np, output_dict, category_index, accuracy)
         if len(detection) > 0:

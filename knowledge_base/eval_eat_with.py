@@ -4,113 +4,200 @@ import ast
 
 
 def get_prediction_for(recipe_to_get, predicted_values_list):
-    for predicted_val_recipe in predicted_values_list:
-        if predicted_val_recipe[1] == recipe_to_get:
-            return predicted_val_recipe
+    for recipe in predicted_values_list:
+        if predicted_values_list[recipe]['URL'] == recipe_to_get:
+            return predicted_values_list[recipe]
     return None
+
+
+def evaluation_medium_hard(true_recipe, predicted_cutlery, prediction_dic, tp_cutlery, fp_cutlery, fn_cutlery):
+    correct_cutlery_list = true_recipe[3].split(", ")
+    assert len(correct_cutlery_list) > 0, "length of correct cutlery must be larger than 0"
+    assert len(correct_cutlery_list) < 3, "length of correct cutlery must be smaller than 3"
+
+    if predicted_cutlery[0] is None:
+        if 'none' in correct_cutlery_list:
+            tp_cutlery.append(prediction_dic)
+        else:
+            fn_cutlery.append(prediction_dic)
+
+    elif len(predicted_cutlery) == 1 and predicted_cutlery[0] is not None:
+        if predicted_cutlery == correct_cutlery_list:
+            tp_cutlery.append(prediction_dic)
+        else:
+            fp_cutlery.append(prediction_dic)
+
+    elif len(predicted_cutlery) == 2:
+        predict_1 = [predicted_cutlery[0], predicted_cutlery[1]]
+        predict_2 = [predicted_cutlery[1], predicted_cutlery[0]]
+
+        if predict_1 == correct_cutlery_list:
+            tp_cutlery.append(prediction_dic)
+        elif predict_2 == correct_cutlery_list:
+            tp_cutlery.append(prediction_dic)
+        else:
+            fp_cutlery.append(prediction_dic)
+
+
+def get_with_weights(eat_with):
+    tmp = {}
+    for row in eat_with:
+        recipe = row[0]
+        most_accurate_cutlery = ast.literal_eval(row[3])
+
+        tmp[recipe] = {}
+        tmp[recipe]['URL'] = row[1]
+        tmp[recipe]['Most Occurring'] = []
+        for most_occurring_dic in ast.literal_eval(row[4]):
+            tmp[recipe]['Most Occurring'].append(most_occurring_dic['Cutlery'])
+
+        tmp[recipe]['Cutlery'] = []
+        accuracy = 0
+        counter = 0
+
+        for dic in most_accurate_cutlery:
+            tmp[recipe]['Cutlery'].append(dic['Cutlery'])
+            accuracy += dic['Accuracy']
+            counter += 1
+
+        tmp[recipe]['Cutlery Weight'] = accuracy/counter
+
+        most_occurring = ast.literal_eval(row[4])
+        for dic in most_occurring:
+            for cutlery in tmp[recipe]['Cutlery']:
+                if cutlery == dic['Cutlery']:
+                    tmp[recipe]['Cutlery Weight'] += dic['Occurrence'] + dic['Average Accuracy']
+
+        if len(ast.literal_eval(row[5])) == 0:
+            tmp[recipe]['Last Seen'] = None
+            last_seen = {'Cutlery': None, 'Accuracy': -1}
+        else:
+            tmp[recipe]['Last Seen'] = ast.literal_eval(row[5])['Cutlery']
+            last_seen = ast.literal_eval(row[5])
+
+        for cutlery in tmp[recipe]['Cutlery']:
+            if cutlery == last_seen['Cutlery']:
+                tmp[recipe]['Cutlery Weight'] += last_seen['Accuracy']
+
+    return tmp
+
+
+def get_urls(tmp_list):
+    urls = []
+    for element_dic in tmp_list:
+        urls.append(element_dic['URL'])
+    return urls
+
+
+def print_average_weight_of_true_positive_and_true_negative(tp, fp, sorted_predictions):
+    avg_for_tp = 0
+    avg_for_fp = 0
+    counter = 0
+
+    list_of_tp_urls = get_urls(tp)
+    list_of_fp_urls = get_urls(fp)
+
+    for recipe in sorted_predictions:
+        if sorted_predictions[recipe]['URL'] in list_of_tp_urls:
+            avg_for_tp += sorted_predictions[recipe]['Cutlery Weight']
+        elif sorted_predictions[recipe]['URL'] in list_of_fp_urls:
+            avg_for_fp += sorted_predictions[recipe]['Cutlery Weight']
+        counter += 1
+
+    print("Average weight of tp: ", avg_for_tp/counter)
+    print("Average weight of fp: ", avg_for_fp / counter)
 
 
 # function filters out predictions like: ['person', 'fork'] to just ['fork']
 # because it is not technically wrong since a person is needed to use a fork. It increases precision
-def remove_unnecessary_hand(predictions_list_dic):
-    if len(predictions_list_dic) == 1 and predictions_list_dic[0]['Cutlery'] == 'person':
-        return predictions_list_dic
-
+def remove_unnecessary_hand(predictions_dic):
     tmp = []
-    for dic in predictions_list_dic:
-        if dic['Cutlery'] != 'person':
-            tmp.append(dic)
+    if 'person' in predictions_dic['Cutlery'] and len(predictions_dic['Cutlery']) == 2:
+        for cutlery in predictions_dic['Cutlery']:
+            if cutlery != 'person':
+                tmp.append(cutlery)
+    else:
+        tmp = predictions_dic['Cutlery']
     return tmp
 
 
-def update_tp_and_fp(tp_cutlery, fp_cutlery, predictions_for_recipe, correct_cutlery_list):
-    all_predicted_cutlery = []
-    predicted_cutlery_list = remove_unnecessary_hand(ast.literal_eval(predictions_for_recipe[3]))
-
-    for predicted_cutlery in predicted_cutlery_list:
-        if predicted_cutlery['Cutlery'] in correct_cutlery_list:
-            tp_cutlery.append({'Title': predictions_for_recipe[0], 'URL': predictions_for_recipe[1],
-                               'Video_ID': predictions_for_recipe[2],
-                               'Correct_Cutlery': correct_cutlery_list, 'Predicted_Cutlery': predicted_cutlery,
-                               'Most Detected Cutlery': predictions_for_recipe[4],
-                               'Last Detected Cutlery': predictions_for_recipe[5]})
-        else:
-            fp_cutlery.append({'Title': predictions_for_recipe[0], 'URL': predictions_for_recipe[1],
-                               'Video_ID': predictions_for_recipe[2],
-                               'Correct_Cutlery': correct_cutlery_list, 'Predicted_Cutlery': predicted_cutlery,
-                               'Most Detected Cutlery': predictions_for_recipe[4],
-                               'Last Detected Cutlery': predictions_for_recipe[5]})
-        all_predicted_cutlery.append(predicted_cutlery['Cutlery'])
-
-    if len(all_predicted_cutlery) == 1 and all_predicted_cutlery[0] is None:
-        all_predicted_cutlery = []
-    return all_predicted_cutlery
-
-
-def update_fn(fn_cutlery, correct_cutlery_list, all_predicted_cutlery, predictions_for_recipe):
-    if len(correct_cutlery_list) > len(all_predicted_cutlery):
-        missing = len(correct_cutlery_list) - len(all_predicted_cutlery)
+def update_missing_values(correct_cutlery_list, predicted_cutlery, fn_cutlery, prediction_dic, title):
+    if len(correct_cutlery_list) > len(predicted_cutlery):
+        missing = len(correct_cutlery_list) - len(predicted_cutlery)
         counter = 0
         for correct_cutlery in correct_cutlery_list:
-            if correct_cutlery not in all_predicted_cutlery:
-                fn_cutlery.append({'Title': predictions_for_recipe[0], 'URL': predictions_for_recipe[1],
-                                   'Video_ID': predictions_for_recipe[2],
+            if correct_cutlery not in predicted_cutlery:
+                fn_cutlery.append({'Title': title, 'URL': prediction_dic['URL'],
                                    'Missing_Cutlery': correct_cutlery})
                 counter += 1
             if counter == missing:
                 break
 
 
-def update_values_for_cutlery(true_recipe, predictions_for_recipe, tp_cutlery, fp_cutlery, fn_cutlery):
+def evaluation_easy(true_recipe, predicted_cutlery, prediction_dic, tp_cutlery, fp_cutlery, fn_cutlery):
     correct_cutlery_list = true_recipe[3].split(", ")
     assert len(correct_cutlery_list) > 0, "length of correct cutlery must be larger than 0"
+    assert len(correct_cutlery_list) < 3, "length of correct cutlery must be smaller than 3"
 
-    if 'none' in correct_cutlery_list and len(correct_cutlery_list) == 1:
+    if 'none' in correct_cutlery_list:
         correct_cutlery_list = []
 
-    print("current recipe URL: ", true_recipe[1])
-    print("true cutlery: ", correct_cutlery_list)
-    all_predicted_cutlery = update_tp_and_fp(tp_cutlery, fp_cutlery, predictions_for_recipe, correct_cutlery_list)
-    print("predicted cutlery: ", all_predicted_cutlery)
-    update_fn(fn_cutlery, correct_cutlery_list, all_predicted_cutlery, predictions_for_recipe)
+    for cutlery in predicted_cutlery:
+        if cutlery in correct_cutlery_list:
+            tp_cutlery.append(prediction_dic)
+        else:
+            fp_cutlery.append(prediction_dic)
 
-    print("true positive cutlery: ", len(tp_cutlery))
-    print("false positive cutlery: ", len(fp_cutlery))
-    print("false negative cutlery: ", len(fn_cutlery))
+    update_missing_values(correct_cutlery_list, predicted_cutlery, fn_cutlery, prediction_dic, true_recipe[0])
 
 
-def update_values_for_dishware(true_recipe, predictions_for_recipe, tp_dishware, fp_dishware, fn_dishware):
-    true_dishware = true_recipe[4]
-    predicted_dishware = ast.literal_eval(predictions_for_recipe[7])
-    print("\n true dishware: ", true_dishware)
-    print("predicted dishware: ", predicted_dishware)
-    if predicted_dishware['Container'] == true_dishware or (predicted_dishware['Container'] is None and true_dishware == 'none'):
-        tp_dishware.append({'Title': predictions_for_recipe[0], 'URL': predictions_for_recipe[1],
-                            'Video_ID': predictions_for_recipe[2],
-                            'Predicted_Container': predicted_dishware})
-    elif predicted_dishware['Container'] != true_dishware:
-        fp_dishware.append({'Title': predictions_for_recipe[0], 'URL': predictions_for_recipe[1],
-                            'Video_ID': predictions_for_recipe[2],
-                            'Predicted_Container': predicted_dishware})
-    elif predicted_dishware['Container'] is None and true_dishware != 'none':
-        fn_dishware.append({'Title': predictions_for_recipe[0], 'URL': predictions_for_recipe[1],
-                            'Video_ID': predictions_for_recipe[2],
-                            'Predicted_Container': true_dishware})
+def print_all_types_of_cutlery(predictions):
+    dic = {'fork': 0, 'spoon': 0, 'knife': 0, 'chopsticks': 0, 'person': 0,
+           'fork_knife': 0, 'fork_spoon': 0, 'fork_chopsticks': 0, 'fork_person': 0,
+           'spoon_knife': 0, 'spoon_chopsticks': 0, 'spoon_person': 0,
+           'knife_chopsticks': 0, 'knife_person': 0,
+           'chopsticks_person': 0,
+           'total': 0}
 
-    print("true positive dishware: ", len(tp_dishware))
-    print("false positive dishware: ", len(fp_dishware))
-    print("false negative dishware: ", len(fn_dishware), "\n\n")
+    for recipe in predictions:
+        print(predictions[recipe]['Cutlery'])
+        if len(predictions[recipe]['Cutlery']) == 1:
+            if 'fork' in predictions[recipe]['Cutlery']:
+                dic['fork'] += 1
+            elif 'spoon' in predictions[recipe]['Cutlery']:
+                dic['spoon'] += 1
+            elif 'knife' in predictions[recipe]['Cutlery']:
+                dic['knife'] += 1
+            elif 'chopsticks' in predictions[recipe]['Cutlery']:
+                dic['chopsticks'] += 1
+            elif 'person' in predictions[recipe]['Cutlery']:
+                dic['person'] += 1
+        elif len(predictions[recipe]['Cutlery']) == 2:
+            if 'fork' in predictions[recipe]['Cutlery'] and 'knife' in predictions[recipe]['Cutlery']:
+                dic['fork_knife'] += 1
+            elif 'fork' in predictions[recipe]['Cutlery'] and 'spoon' in predictions[recipe]['Cutlery']:
+                dic['fork_spoon'] += 1
+            elif 'fork' in predictions[recipe]['Cutlery'] and 'chopsticks' in predictions[recipe]['Cutlery']:
+                dic['fork_chopsticks'] += 1
+            elif 'fork' in predictions[recipe]['Cutlery'] and 'person' in predictions[recipe]['Cutlery']:
+                dic['fork_person'] += 1
+            elif 'spoon' in predictions[recipe]['Cutlery'] and 'knife' in predictions[recipe]['Cutlery']:
+                dic['spoon_knife'] += 1
+            elif 'spoon' in predictions[recipe]['Cutlery'] and 'chopsticks' in predictions[recipe]['Cutlery']:
+                dic['spoon_chopsticks'] += 1
+            elif 'spoon' in predictions[recipe]['Cutlery'] and 'person' in predictions[recipe]['Cutlery']:
+                dic['spoon_person'] += 1
+            elif 'knife' in predictions[recipe]['Cutlery'] and 'chopsticks' in predictions[recipe]['Cutlery']:
+                dic['knife_chopsticks'] += 1
+            elif 'knife' in predictions[recipe]['Cutlery'] and 'person' in predictions[recipe]['Cutlery']:
+                dic['knife_person'] += 1
+            elif 'knife' in predictions[recipe]['Cutlery'] and 'chopsticks' in predictions[recipe]['Cutlery']:
+                dic['chopsticks_person'] += 1
+        dic['total'] += len(predictions[recipe]['Cutlery'])
 
-
-def get_totals(ground_truth_list, extracted_knowledge_list):
-    truth_counter = 0
-    predictions_counter = 0
-    for truth in ground_truth_list:
-        truth_counter += len(truth[3].split(", "))
-        predictions_for_recipe = get_prediction_for(truth[1], extracted_knowledge_list)
-        predicted_cutlery_list = remove_unnecessary_hand(ast.literal_eval(predictions_for_recipe[3]))
-        predictions_counter += len(predicted_cutlery_list)
-    return truth_counter, predictions_counter
+    dic = dict(sorted(dic.items(), key=lambda item: item[1], reverse=True))
+    for key in dic:
+        print(key, dic[key])
 
 
 def main():
@@ -119,42 +206,59 @@ def main():
     next(extracted_knowledge_reader)
     extracted_knowledge_list = list(extracted_knowledge_reader)
 
+    extraction_with_weights = get_with_weights(extracted_knowledge_list)
+    sorted_ew = dict(sorted(extraction_with_weights.items(), key=lambda item: item[1]['Cutlery Weight'], reverse=True))
+    print("All predicted recipes sorted by Weight:")
+    for recipe in sorted_ew:
+        print(recipe, sorted_ew[recipe], "\n")
+
+    print_all_types_of_cutlery(sorted_ew)
+
     ground_truth = open('ground_truths/eat_with_truth.csv')
     ground_truth_reader = csv.reader(ground_truth)
     next(ground_truth_reader)
     ground_truth_list = list(ground_truth_reader)
 
-    tp_cutlery = []
-    fp_cutlery = []
-    fn_cutlery = []
+    tp_hard_cutlery = []
+    fp_hard_cutlery = []
+    fn_hard_cutlery = []
 
-    tp_dishware = []
-    fp_dishware = []
-    fn_dishware = []
+    tp_medium_cutlery = []
+    fp_medium_cutlery = []
+    fn_medium_cutlery = []
 
-    tp_recipe = []
-    fp_recipe = []
+    tp_easy_cutlery = []
+    fp_easy_cutlery = []
+    fn_easy_cutlery = []
 
     for true_recipe in ground_truth_list:
-        predictions_for_recipe = get_prediction_for(true_recipe[1], extracted_knowledge_list)
+        predictions_for_recipe = get_prediction_for(true_recipe[1], sorted_ew)
         assert predictions_for_recipe is not None, "recipes in ground truth should be present in predictions"
 
-        update_values_for_cutlery(true_recipe, predictions_for_recipe, tp_cutlery, fp_cutlery, fn_cutlery)
-        update_values_for_dishware(true_recipe, predictions_for_recipe, tp_dishware, fp_dishware, fn_dishware)
+        evaluation_easy(true_recipe, remove_unnecessary_hand(predictions_for_recipe), predictions_for_recipe,
+                        tp_easy_cutlery, fp_easy_cutlery, fn_easy_cutlery)
+        evaluation_medium_hard(true_recipe, predictions_for_recipe['Cutlery'], predictions_for_recipe,
+                               tp_hard_cutlery, fp_hard_cutlery, fn_hard_cutlery)
+        evaluation_medium_hard(true_recipe, remove_unnecessary_hand(predictions_for_recipe), predictions_for_recipe,
+                               tp_medium_cutlery, fp_medium_cutlery, fn_medium_cutlery)
 
-    total_truths, total_pred = get_totals(ground_truth_list, extracted_knowledge_list)
-    print("total predictions: ", total_pred)
-    print("total truths: ", total_truths)
+    hard_precision = (len(tp_hard_cutlery) / (len(tp_hard_cutlery) + len(fp_hard_cutlery)))
+    hard_recall = (len(tp_hard_cutlery) / (len(tp_hard_cutlery) + len(fn_hard_cutlery)))
+    print("\nprecision hard: ", hard_precision)
+    print("recall hard: ", hard_recall)
+    print_average_weight_of_true_positive_and_true_negative(tp_hard_cutlery, fp_hard_cutlery, sorted_ew)
 
-    cutlery_precision = (len(tp_cutlery) / (len(tp_cutlery) + len(fp_cutlery)))
-    cutlery_recall = (len(tp_cutlery) / (len(tp_cutlery) + len(fn_cutlery)))
-    print("cutlery precision: ", cutlery_precision)
-    print("cutlery recall: ", cutlery_recall)
+    medium_precision = (len(tp_medium_cutlery) / (len(tp_medium_cutlery) + len(fp_medium_cutlery)))
+    medium_recall = (len(tp_medium_cutlery) / (len(tp_medium_cutlery) + len(fn_medium_cutlery)))
+    print("\nprecision medium: ", medium_precision)
+    print("recall medium: ", medium_recall)
+    print_average_weight_of_true_positive_and_true_negative(tp_medium_cutlery, fp_medium_cutlery, sorted_ew)
 
-    dishware_precision = (len(tp_dishware) / (len(tp_dishware) + len(fp_dishware)))
-    dishware_recall = (len(tp_dishware) / (len(tp_dishware) + len(fn_dishware)))
-    print("dishware precision: ", dishware_precision)
-    print("dishware recall: ", dishware_recall)
+    easy_precision = (len(tp_easy_cutlery) / (len(tp_easy_cutlery) + len(fp_easy_cutlery)))
+    easy_recall = (len(tp_easy_cutlery) / (len(tp_easy_cutlery) + len(fn_easy_cutlery)))
+    print("\nprecision easy: ", easy_precision)
+    print("recall easy: ", easy_recall)
+    print_average_weight_of_true_positive_and_true_negative(tp_easy_cutlery, fp_easy_cutlery, sorted_ew)
 
 
 if __name__ == '__main__':

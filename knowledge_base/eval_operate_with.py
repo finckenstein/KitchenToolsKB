@@ -5,7 +5,7 @@ import ast
 
 def prediction_is_true(predicted_value, truth_values):
     predicted_tuple = ast.literal_eval(predicted_value)
-    print("predicted value: ", predicted_tuple)
+    # print("predicted value: ", predicted_tuple)
     for true_val in truth_values:
         true_vals_as_list = true_val[0].split(", ")
 
@@ -16,7 +16,7 @@ def prediction_is_true(predicted_value, truth_values):
         true_tup2 = tool2, tool1
 
         if predicted_tuple == true_tup1 or predicted_tuple == true_tup2:
-            print("ground truth: ", true_tup1, " is correctly predicted by: ", predicted_tuple)
+            # print("ground truth: ", true_tup1, " is correctly predicted by: ", predicted_tuple)
             return True
 
     return False
@@ -66,11 +66,30 @@ def get_edge_weights(list_of_predictions):
     return (video_occurrence/len(list_of_predictions)), (occurrence/len(list_of_predictions))
 
 
+def make_dict(extracted_knowledge_list):
+    tmp = {}
+    for row in extracted_knowledge_list:
+        print(type(row[3]))
+        list_of_video = ast.literal_eval(row[3])
+        occurrence = ast.literal_eval(row[1])
+        tmp[row[0]] = {'Accuracy': row[2],
+                       'Occurrence':  occurrence,
+                       'Videos': list_of_video,
+                       'Weight': ((2*(len(list_of_video)))+occurrence)}
+    return tmp
+
+
 def main():
     extracted_knowledge = open('extracted_knowledge/operate_with.csv')
     extracted_knowledge_reader = csv.reader(extracted_knowledge)
     next(extracted_knowledge_reader)
     extracted_knowledge_list = list(extracted_knowledge_reader)
+
+    operate_with_in_dict = make_dict(extracted_knowledge_list)
+    sorted_op = dict(sorted(operate_with_in_dict.items(), key=lambda item: item[1]['Weight'], reverse=True))
+    print("sorted relations by significance.")
+    for relation in sorted_op:
+        print(relation, sorted_op[relation]['Weight'])
 
     ground_truth = open('ground_truths/operate_with_truth.csv')
     ground_truth_list = list(csv.reader(ground_truth))
@@ -91,6 +110,7 @@ def main():
 
     tp_edge_weights = get_edge_weights(true_positive)
     fp_edge_weights = get_edge_weights(false_positive)
+
     print("edge weights of true positive predictions. Video Occurrence: ", tp_edge_weights[0], ". Total Occurrence: ", tp_edge_weights[1])
     print("edge weights of false positive predictions:  Video Occurrence: ", fp_edge_weights[0], ". Total Occurrence: ", fp_edge_weights[1])
 
