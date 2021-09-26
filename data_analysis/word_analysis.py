@@ -11,7 +11,7 @@ if __name__ == "__main__":
     rows = c.fetchall()
     i = 0
     for row in rows:
-        if "plate" in row[7]:
+        if "cupcake tin" in row[7]:
             print(row[7])
             i += 1
     print(i)
