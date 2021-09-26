@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 import sqlite3
-import spacy
-import ast
-
 
 if __name__ == "__main__":
     conn = sqlite3.connect('/home/leander/Desktop/automatic_KB_construction/recipes/old_recipes/recipes1.db')
@@ -11,7 +8,7 @@ if __name__ == "__main__":
     rows = c.fetchall()
     i = 0
     for row in rows:
-        if "cupcake tin" in row[7]:
+        if "bring to a boil" in row[7]:
             print(row[7])
             i += 1
     print(i)
