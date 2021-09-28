@@ -3,30 +3,86 @@ import csv
 import ast
 
 
-def get_truth_concepts_for(curr_utensil, ground_truth_list):
-    for truth_utensil in ground_truth_list:
-        if curr_utensil == truth_utensil[0]:
-            return ast.literal_eval(truth_utensil[1])
+def get_true_foods_for(utensil, ground_truths):
+    for true_utensil_foods in ground_truths:
+        if true_utensil_foods[0] == utensil:
+            return ast.literal_eval(true_utensil_foods[1])
     return None
 
 
-def evaluate_utensil(predicted_concepts, truthful_concepts):
-    tmp = {'Precision': 0, 'Recall': 0, 'True Positive': {}, 'False Positive': {}, 'False Negative': []}
+def evaluate_utensil(predicted_utensil_food, true_foods_for_utensil):
+    tmp = {'Precision': None, 'Recall': None, 'True Positive': {}, 'False Positive': {}, 'False Negative': []}
 
-    for predict_concept_key in predicted_concepts:
-        if predict_concept_key in truthful_concepts:
-            tmp['True Positive'][predict_concept_key] = predicted_concepts[predict_concept_key]
+    for verb_key in predicted_utensil_food:
+        if verb_key in true_foods_for_utensil:
+            tmp['True Positive'][verb_key] = predicted_utensil_food[verb_key]
         else:
-            tmp['False Positive'][predict_concept_key] = predicted_concepts[predict_concept_key]
+            tmp['False Positive'][verb_key] = predicted_utensil_food[verb_key]
 
-    for true_concepts in truthful_concepts:
-        if true_concepts not in predicted_concepts:
-            tmp['False Negative'].append(true_concepts)
+    for true_verbs in true_foods_for_utensil:
+        if true_verbs not in predicted_utensil_food:
+            tmp['False Negative'].append(true_verbs)
 
     tmp['Precision'] = (len(tmp['True Positive']) / (len(tmp['True Positive']) + len(tmp['False Positive'])))
     tmp['Recall'] = (len(tmp['True Positive']) / (len(tmp['True Positive']) + len(tmp['False Negative'])))
 
     return tmp
+
+
+def get_top_5(sorted_v):
+    if len(sorted_v) == 0:
+        return {}
+
+    maxi = list(sorted_v.values())[0]
+    counter = 0
+    top_5_dict = {}
+
+    for elem in sorted_v:
+        score = sorted_v[elem]
+
+        if maxi != score:
+            counter += 1
+            maxi = sorted_v[elem]
+
+        if counter == 5:
+            break
+        else:
+            top_5_dict[elem] = sorted_v[elem]
+    return top_5_dict
+
+
+def create_weights(extractions):
+    predictions_with_weight = {}
+    for row in extractions:
+        curr_utensil = row[0]
+        predictions_with_weight[curr_utensil] = {}
+
+        all_verbs = ast.literal_eval(row[4])
+        for verb in all_verbs:
+            predictions_with_weight[curr_utensil][verb] = ((all_verbs[verb]['Is CV in Sync With Text'] /
+                                                            all_verbs[verb]['Counter']) +
+                                                           all_verbs[verb]['Is Tool Meant'] + (
+                                                                   all_verbs[verb]['Accuracy'] / 100))
+    return predictions_with_weight
+
+
+def print_results(predict):
+    for utensil in predict:
+        tmp_dict = predict[utensil]
+        print("\n\ncurrent utensil: ", utensil)
+        sorted_by_weight = dict(sorted(tmp_dict.items(), key=lambda item: item[1], reverse=True))
+        top_5_verbs = get_top_5(sorted_by_weight)
+        print(list(top_5_verbs))
+        print(list(tmp_dict))
+
+
+def get_average(verb_dic):
+    if len(verb_dic) == 0:
+        return 0
+    summation = 0
+    for verb in verb_dic:
+        summation += verb_dic[verb]
+    return summation / len(verb_dic)
 
 
 def main():
@@ -38,31 +94,36 @@ def main():
     ground_truth = open('ground_truths/utensils_used_to_prepare_truth.csv')
     ground_truth_list = list(csv.reader(ground_truth))
 
+    predictions_with_weight = create_weights(extracted_knowledge_list)
+    print_results(predictions_with_weight)
+
     evaluation = {}
-
-    for predicted_utensil_with_food in extracted_knowledge_list:
-        curr_utensil = predicted_utensil_with_food[0]
-        assert curr_utensil not in evaluation, "utensils in extracted knowledge should be unique."
-
-        predicted_concepts = ast.literal_eval(predicted_utensil_with_food[4])
-        truthful_concepts = get_truth_concepts_for(curr_utensil, ground_truth_list)
-        if truthful_concepts is None:
-            print(curr_utensil, " not supported.\n\n")
+    avg = {'Precision': 0, 'Recall': 0, 'TP': 0, 'FP': 0, 'Length': 0}
+    for food in predictions_with_weight:
+        true_foods_for_utensil = get_true_foods_for(food, ground_truth_list)
+        if true_foods_for_utensil is None:
+            print("\n\nutensil not supported: ", food)
             continue
 
-        evaluation[curr_utensil] = evaluate_utensil(predicted_concepts, truthful_concepts)
+        evaluation[food] = evaluate_utensil(predictions_with_weight[food], true_foods_for_utensil)
 
-        print("current utensil: ", curr_utensil)
-        print("true concepts: ", truthful_concepts)
-        print("*** correct concepts (true positive): ", list(evaluation[curr_utensil]['True Positive']))
-        print("*** incorrect concepts (false positive): ", list(evaluation[curr_utensil]['False Positive']))
-        print("*** missing concepts (false negative): ", evaluation[curr_utensil]['False Negative'])
-        print("true positive: ", len(evaluation[curr_utensil]['True Positive']))
-        print("false positive: ", len(evaluation[curr_utensil]['False Positive']))
-        print("false negative: ", len(evaluation[curr_utensil]['False Negative']))
-        print("precision: ", evaluation[curr_utensil]['Precision'])
-        print("recall: ", evaluation[curr_utensil]['Recall'])
-        print("\n\n")
+        print("\n\ncurrent utensil: ", food)
+        print("precision: ", evaluation[food]['Precision'] * 100, "%")
+        print("recall: ", evaluation[food]['Recall'] * 100, "%")
+        print("avg. weight of tp: ", get_average(evaluation[food]['True Positive']))
+        print("avg. weight of fp: ", get_average(evaluation[food]['False Positive']))
+
+        avg['Precision'] += evaluation[food]['Precision']
+        avg['Recall'] += evaluation[food]['Recall']
+        avg['TP'] += get_average(evaluation[food]['True Positive'])
+        avg['FP'] += get_average(evaluation[food]['False Positive'])
+        avg['Length'] += 1
+
+    print("\n\n")
+    print("precision: ", avg['Precision']/avg['Length'] * 100)
+    print("recall: ", avg['Recall'] / avg['Length'] * 100)
+    print("TP: ", avg['TP'] / avg['Length'])
+    print("FP: ", avg['FP'] / avg['Length'])
 
 
 if __name__ == '__main__':
