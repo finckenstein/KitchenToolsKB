@@ -30,8 +30,10 @@ def evaluate_container(predicted_container_verbs, true_verbs_for_container, is_s
 
     if is_strict:
         verbs_to_use = true_verbs_for_container
+        # print("length of strict: ", len(verbs_to_use))
     else:
         verbs_to_use = get_synonyms(true_verbs_for_container)
+        # print("length of lenient: ", len(verbs_to_use))
 
     for verb_key in predicted_container_verbs:
         if verb_key in verbs_to_use:
@@ -111,41 +113,35 @@ def main():
 
         true_verbs_for_container = get_true_verbs_for(curr_container, ground_truth_list)
         assert true_verbs_for_container is not None, "container must be found"
+        print("\n\n")
+        print("current container: ", curr_container)
+        print(len(true_verbs_for_container))
+        print(len(predicted_container_verbs))
 
         strict_eval[curr_container] = evaluate_container(predicted_container_verbs, true_verbs_for_container, True)
         lenient_eval[curr_container] = evaluate_container(predicted_container_verbs, true_verbs_for_container, False)
 
-        print("\n\n")
-        print("current container: ", curr_container)
         print("strict precision: ", strict_eval[curr_container]['Precision'] * 100)
         print("strict recall: ", strict_eval[curr_container]['Recall'] * 100)
+        print("avg. weight of tp: ", get_average(strict_eval[curr_container]['True Positive']))
+        print("avg. weight of fp: ", get_average(strict_eval[curr_container]['False Positive']))
 
         print("lenient precision: ", lenient_eval[curr_container]['Precision'] * 100)
         print("lenient recall: ", lenient_eval[curr_container]['Recall'] * 100)
-        avg_precision = ((strict_eval[curr_container]['Precision'] + lenient_eval[curr_container][
-            'Precision']) / 2) * 100
-        print("average precision: ", avg_precision)
-        avg_recall = ((strict_eval[curr_container]['Recall'] + lenient_eval[curr_container]['Recall']) / 2) * 100
-        print("average recall: ", avg_recall)
-        avg_weight_tp = get_average_of_two(lenient_eval[curr_container]['True Positive'],
-                                           strict_eval[curr_container]['True Positive'])
-        print("average weight of true positive: ", avg_weight_tp)
-        avg_weight_fp = get_average_of_two(lenient_eval[curr_container]['False Positive'],
-                                           strict_eval[curr_container]['False Positive'])
-        print("average weight of false positive: ", avg_weight_fp)
-        avg['Precision'] += avg_precision
-        avg['Recall'] += avg_recall
-        avg['Avg_TP_weight'] += avg_weight_tp
-        avg['Avg_FP_weight'] += avg_weight_fp
+        print("avg. weight of tp: ", get_average(lenient_eval[curr_container]['True Positive']))
+        print("avg. weight of fp: ", get_average(lenient_eval[curr_container]['False Positive']))
+
+        avg['Precision'] += strict_eval[curr_container]['Precision']
+        avg['Recall'] += strict_eval[curr_container]['Recall']
+        avg['Avg_TP_weight'] += get_average(strict_eval[curr_container]['True Positive'])
+        avg['Avg_FP_weight'] += get_average(strict_eval[curr_container]['False Positive'])
         avg['Length'] += 1
 
-    print("\n\naverage for strict:")
-    print_average(strict_eval)
-    print("\n\naverage for lenient:")
-    print_average(lenient_eval)
-    print("\n\naverage for average:")
-    for k in avg:
-        print(k, avg[k]/avg['Length'])
+    print("\n\n")
+    print("avg precision: ", (avg['Precision'] / avg['Length']) * 100)
+    print("avg recall: ", (avg['Recall'] / avg['Length']) * 100)
+    print("avg weight of tp: ", avg['Avg_TP_weight'] / avg['Length'])
+    print("avg weight of fp: ", avg['Avg_FP_weight'] / avg['Length'])
 
 
 if __name__ == '__main__':
