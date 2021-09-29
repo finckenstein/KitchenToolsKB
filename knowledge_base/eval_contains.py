@@ -73,8 +73,12 @@ def main():
     ground_truth_list = list(csv.reader(ground_truth))
 
     evaluation = {}
+    total_concept_predictions = 0
+    total_ingredient_predictions = 0
+    ground_truth_length = 0
 
     for predicted_container_with_food in extracted_knowledge_list:
+
         curr_container = predicted_container_with_food[0]
         assert curr_container not in evaluation, "container in extracted knowledge should be unique."
         predicted_concepts = ast.literal_eval(predicted_container_with_food[4])
@@ -95,12 +99,18 @@ def main():
         # print("*** correct concepts (true positive): ", list(evaluation[curr_container]['True Positive']))
         # print("*** incorrect concepts (false positive): ", list(evaluation[curr_container]['False Positive']))
         # print("*** missing concepts (false negative): ", evaluation[curr_container]['False Negative'])
-        print("true positive: ", len(evaluation[curr_container]['True Positive']))
-        print("false positive: ", len(evaluation[curr_container]['False Positive']))
-        print("false negative: ", len(evaluation[curr_container]['False Negative']))
+        # print("true positive: ", len(evaluation[curr_container]['True Positive']))
+        # print("false positive: ", len(evaluation[curr_container]['False Positive']))
+        # print("false negative: ", len(evaluation[curr_container]['False Negative']))
         print("length of ground truths: ", len(truthful_concepts))
+        total_concept_predictions += len(predicted_concepts)
+        total_ingredient_predictions += len(ast.literal_eval(predicted_container_with_food[1]))
+        ground_truth_length += len(truthful_concepts)
 
     print_average(evaluation)
+    print("total concept predictions: ", total_concept_predictions)
+    print("total ingredient predictions: ", total_ingredient_predictions)
+    print("Truthful predictions: ", ground_truth_length)
 
 
 if __name__ == '__main__':

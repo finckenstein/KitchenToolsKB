@@ -94,6 +94,7 @@ def main():
     strict_evaluation_food = {}
     lenient_evaluation_food = {}
     avg = {'Precision': 0, 'Recall': 0, 'TP': 0, 'FP': 0, 'Length': 0}
+    total_edges = 0
 
     for row in true_food_verb_list:
         current_food = row[0]
@@ -124,13 +125,17 @@ def main():
         avg['FP'] += get_average(strict_evaluation_food[current_food]['False Positive'])
         avg['Length'] += 1
 
+        total_edges += len(predicted_verbs)
+
     print("Avg. Precision: ", (avg['Precision'] / avg['Length'])*100)
     print("Avg. Recall: ", (avg['Recall'] / avg['Length']) * 100)
     print("Avg. TP: ", avg['TP'] / avg['Length'])
     print("Avg. FP: ", avg['FP'] / avg['Length'])
 
+    print("total edges: ", total_edges)
 
     print(len(strict_evaluation_food))
+
 
 if __name__ == '__main__':
     main()

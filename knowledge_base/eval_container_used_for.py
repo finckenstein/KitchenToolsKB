@@ -105,6 +105,8 @@ def main():
 
     strict_eval = {}
     lenient_eval = {}
+    total_predictions = 0
+    ground_truth_length = 0
     avg = {'Precision': 0, 'Recall': 0, 'Avg_TP_weight': 0, 'Avg_FP_weight': 0, 'Length': 0}
 
     for container_verbs in extracted_knowledge_list:
@@ -137,11 +139,17 @@ def main():
         avg['Avg_FP_weight'] += get_average(strict_eval[curr_container]['False Positive'])
         avg['Length'] += 1
 
+        total_predictions += len(predicted_container_verbs)
+        ground_truth_length += len(true_verbs_for_container)
+
     print("\n\n")
     print("avg precision: ", (avg['Precision'] / avg['Length']) * 100)
     print("avg recall: ", (avg['Recall'] / avg['Length']) * 100)
     print("avg weight of tp: ", avg['Avg_TP_weight'] / avg['Length'])
     print("avg weight of fp: ", avg['Avg_FP_weight'] / avg['Length'])
+
+    print("Total predictions: ", total_predictions)
+    print("Truthful predictions: ", ground_truth_length)
 
 
 if __name__ == '__main__':

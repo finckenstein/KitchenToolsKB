@@ -113,6 +113,8 @@ def main():
     print_results(predictions_with_weight)
 
     evaluation = {}
+    total = 0
+    total_truth = 0
     avg = {'Precision': 0, 'Recall': 0, 'TP': 0, 'FP': 0, 'Length': 0}
     for utensil in predictions_with_weight:
         true_verbs_for_utensil = get_true_verbs_for(utensil, ground_truth_list)
@@ -134,11 +136,17 @@ def main():
         avg['FP'] += get_average(evaluation[utensil]['False Positive'])
         avg['Length'] += 1
 
+        total += len(predictions_with_weight[utensil])
+        total_truth += len(true_verbs_for_utensil)
+
     print("\n\n")
     print("precision: ", avg['Precision']/avg['Length'] * 100)
     print("recall: ", avg['Recall'] / avg['Length'] * 100)
     print("TP: ", avg['TP'] / avg['Length'])
     print("FP: ", avg['FP'] / avg['Length'])
+
+    print("all edge: ", total)
+    print("all ground truths: ", total_truth)
 
 
 if __name__ == '__main__':

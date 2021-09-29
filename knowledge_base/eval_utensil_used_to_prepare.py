@@ -51,13 +51,13 @@ def get_top_5(sorted_v):
     return top_5_dict
 
 
-def create_weights(extractions):
+def create_weights(extractions, index):
     predictions_with_weight = {}
     for row in extractions:
         curr_utensil = row[0]
         predictions_with_weight[curr_utensil] = {}
 
-        all_verbs = ast.literal_eval(row[4])
+        all_verbs = ast.literal_eval(row[index])
         for verb in all_verbs:
             predictions_with_weight[curr_utensil][verb] = ((all_verbs[verb]['Is CV in Sync With Text'] /
                                                             all_verbs[verb]['Counter']) +
@@ -66,14 +66,27 @@ def create_weights(extractions):
     return predictions_with_weight
 
 
-def print_results(predict):
+def get_ingredients(utensil, ingredients):
+    for k in ingredients:
+        if k == utensil:
+            return ingredients[k]
+
+
+def print_results(predict, ingredients_dic):
     for utensil in predict:
-        tmp_dict = predict[utensil]
         print("\n\ncurrent utensil: ", utensil)
-        sorted_by_weight = dict(sorted(tmp_dict.items(), key=lambda item: item[1], reverse=True))
-        top_5_verbs = get_top_5(sorted_by_weight)
-        print(list(top_5_verbs))
-        print(list(tmp_dict))
+        tmp_dict = predict[utensil]
+        ingredient_dic = get_ingredients(utensil, ingredients_dic)
+
+        sorted_concepts_by_weight = dict(sorted(tmp_dict.items(), key=lambda item: item[1], reverse=True))
+        top_5_concepts = get_top_5(sorted_concepts_by_weight)
+        print("Concepts: ", list(top_5_concepts))
+        print("All Concepts: ", list(sorted_concepts_by_weight))
+
+        sorted_ingredients_by_weight = dict(sorted(ingredient_dic.items(), key=lambda item: item[1], reverse=True))
+        top_5_ingredients = get_top_5(sorted_ingredients_by_weight)
+        print("Ingredients: ", list(top_5_ingredients))
+        print("All Ingredients: ", list(sorted_ingredients_by_weight))
 
 
 def get_average(verb_dic):
@@ -94,36 +107,45 @@ def main():
     ground_truth = open('ground_truths/utensils_used_to_prepare_truth.csv')
     ground_truth_list = list(csv.reader(ground_truth))
 
-    predictions_with_weight = create_weights(extracted_knowledge_list)
-    print_results(predictions_with_weight)
+    predictions_with_weight = create_weights(extracted_knowledge_list, 4)
+    ingredient_with_weight = create_weights(extracted_knowledge_list, 1)
+    print_results(predictions_with_weight, ingredient_with_weight)
 
     evaluation = {}
     avg = {'Precision': 0, 'Recall': 0, 'TP': 0, 'FP': 0, 'Length': 0}
-    for food in predictions_with_weight:
-        true_foods_for_utensil = get_true_foods_for(food, ground_truth_list)
+    total_predictions = 0
+    total_truths = 0
+
+    for utensil in predictions_with_weight:
+        true_foods_for_utensil = get_true_foods_for(utensil, ground_truth_list)
         if true_foods_for_utensil is None:
-            print("\n\nutensil not supported: ", food)
+            print("\n\nutensil not supported: ", utensil)
             continue
 
-        evaluation[food] = evaluate_utensil(predictions_with_weight[food], true_foods_for_utensil)
+        evaluation[utensil] = evaluate_utensil(predictions_with_weight[utensil], true_foods_for_utensil)
 
-        print("\n\ncurrent utensil: ", food)
-        print("precision: ", evaluation[food]['Precision'] * 100, "%")
-        print("recall: ", evaluation[food]['Recall'] * 100, "%")
-        print("avg. weight of tp: ", get_average(evaluation[food]['True Positive']))
-        print("avg. weight of fp: ", get_average(evaluation[food]['False Positive']))
+        print("\n\ncurrent utensil: ", utensil)
+        print("precision: ", evaluation[utensil]['Precision'] * 100, "%")
+        print("recall: ", evaluation[utensil]['Recall'] * 100, "%")
+        print("avg. weight of tp: ", get_average(evaluation[utensil]['True Positive']))
+        print("avg. weight of fp: ", get_average(evaluation[utensil]['False Positive']))
 
-        avg['Precision'] += evaluation[food]['Precision']
-        avg['Recall'] += evaluation[food]['Recall']
-        avg['TP'] += get_average(evaluation[food]['True Positive'])
-        avg['FP'] += get_average(evaluation[food]['False Positive'])
+        avg['Precision'] += evaluation[utensil]['Precision']
+        avg['Recall'] += evaluation[utensil]['Recall']
+        avg['TP'] += get_average(evaluation[utensil]['True Positive'])
+        avg['FP'] += get_average(evaluation[utensil]['False Positive'])
         avg['Length'] += 1
+        total_predictions += len(predictions_with_weight[utensil])
+        total_truths += len(true_foods_for_utensil)
 
     print("\n\n")
     print("precision: ", avg['Precision']/avg['Length'] * 100)
     print("recall: ", avg['Recall'] / avg['Length'] * 100)
     print("TP: ", avg['TP'] / avg['Length'])
     print("FP: ", avg['FP'] / avg['Length'])
+    print("total predictions: ", total_predictions)
+    print(avg['Length'])
+    print("Total truths: ", total_truths)
 
 
 if __name__ == '__main__':
