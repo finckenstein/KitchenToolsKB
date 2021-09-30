@@ -4,7 +4,7 @@ nlp = spacy.load("en_core_web_trf")
 
 
 if __name__ == "__main__":
-    string = "add the water to a cup and bring to a boil."
+    string = "Mix the batter in the bowl."
     step = nlp(string)
     sentences = list(step.sents)
 

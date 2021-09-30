@@ -157,25 +157,26 @@ if __name__ == '__main__':
 
     i = 1
     for recipe in recipe_rows:
-        print("VIDEO ID: ", recipe[db.RecipeWithVideoI.VIDEO_ID], " for recipe: ", recipe[db.RecipeWithVideoI.URL])
+        if recipe[db.RecipeWithVideoI.VIDEO_ID] == 2:
+            print("VIDEO ID: ", recipe[db.RecipeWithVideoI.VIDEO_ID], " for recipe: ", recipe[db.RecipeWithVideoI.URL])
 
-        video_file = vid.get_video_file(files, recipe[db.RecipeWithVideoI.VIDEO_ID])
-        cv_detected_kitchenware_per_second_of_vid = overlapping_tools.get_cv_tools_in_sequential_order(
-            video_file, model, category_index)
+            video_file = vid.get_video_file(files, recipe[db.RecipeWithVideoI.VIDEO_ID])
+            cv_detected_kitchenware_per_second_of_vid = overlapping_tools.get_cv_tools_in_sequential_order(
+                video_file, model, category_index)
 
-        for elem in cv_detected_kitchenware_per_second_of_vid:
-            print(elem)
-        print(len(cv_detected_kitchenware_per_second_of_vid))
+            for elem in cv_detected_kitchenware_per_second_of_vid:
+                print(elem)
+            print(len(cv_detected_kitchenware_per_second_of_vid))
 
-        sync_text_with_video = Sync(recipe, nlp, cv_detected_kitchenware_per_second_of_vid)
-        parse_recipe(recipe[db.RecipeI.PREPARATION], nlp, used_to_prepare, kitchenware_tracker, util_used_for,
-                     track_concept_net_results, sync_text_with_video)
+            sync_text_with_video = Sync(recipe, nlp, cv_detected_kitchenware_per_second_of_vid)
+            parse_recipe(recipe[db.RecipeI.PREPARATION], nlp, used_to_prepare, kitchenware_tracker, util_used_for,
+                         track_concept_net_results, sync_text_with_video)
 
-        print("\n\n\niteration: ", i, " is over. Analyzed recipe: ", recipe[db.RecipeI.URL], ". All data so far:")
-        print("\n\nrecipe: ", recipe[db.RecipeI.PREPARATION])
-        print("\n\nutensil to food: ", used_to_prepare.utensils_to)
-        print("\n\nutensil used for: ", util_used_for.utensils_to)
-        print("\n\nconceptNet stored: ", track_concept_net_results.noun_to_concepts)
+            print("\n\n\niteration: ", i, " is over. Analyzed recipe: ", recipe[db.RecipeI.URL], ". All data so far:")
+            print("\n\nrecipe: ", recipe[db.RecipeI.PREPARATION])
+            print("\n\nutensil to food: ", used_to_prepare.utensils_to)
+            print("\n\nutensil used for: ", util_used_for.utensils_to)
+            print("\n\nconceptNet stored: ", track_concept_net_results.noun_to_concepts)
 
     util_used_for.analyze_verbs_and_convert_to_csv()
     w_csv.write_to_csv(list(util_used_for.csv_data[0].keys()), util_used_for.csv_data, "utensils_used_for.csv")

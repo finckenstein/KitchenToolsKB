@@ -67,7 +67,7 @@ def show_image(image_np, output_dic, category_index, accuracy):
         line_thickness=4,
         min_score_thresh=accuracy)
 
-    cv2.imshow('object_detection', cv2.resize(image_np, (640, 640)))
+    cv2.imshow('object_detection', cv2.resize(image_np, (1280, 1280)))
 
     while True:
         if cv2.waitKey(1) & 0xFF == ord('q'):
