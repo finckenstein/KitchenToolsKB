@@ -83,9 +83,12 @@ def create_weights(extractions):
 
 def print_results(predict):
     for utensil in predict:
-        tmp_dict = predict[utensil]
         print("\n\ncurrent utensil: ", utensil)
+        tmp_dict = predict[utensil]
         sorted_by_weight = dict(sorted(tmp_dict.items(), key=lambda item: item[1], reverse=True))
+        # for verb in sorted_by_weight:
+        #     print("verb: ", verb, " weight: ", tmp_dict[verb])
+
         top_5_verbs = get_top_5(sorted_by_weight)
         print(list(top_5_verbs))
         print(list(tmp_dict))
@@ -100,6 +103,13 @@ def get_average(verb_dic):
     return summation / len(verb_dic)
 
 
+def print_antonyms(extractions):
+    for row in extractions:
+        antonyms = ast.literal_eval(row[4])
+        print("\n\ncurrent utensil: ", row[0])
+        print("antonyms: ", list(antonyms))
+
+
 def main():
     extracted_knowledge = open('extracted_knowledge/utensils_used_for.csv')
     extracted_knowledge_reader = csv.reader(extracted_knowledge)
@@ -111,6 +121,7 @@ def main():
 
     predictions_with_weight = create_weights(extracted_knowledge_list)
     print_results(predictions_with_weight)
+    print_antonyms(extracted_knowledge_list)
 
     evaluation = {}
     total = 0

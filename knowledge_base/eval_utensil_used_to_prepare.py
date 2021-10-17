@@ -85,8 +85,8 @@ def print_results(predict, ingredients_dic):
 
         sorted_ingredients_by_weight = dict(sorted(ingredient_dic.items(), key=lambda item: item[1], reverse=True))
         top_5_ingredients = get_top_5(sorted_ingredients_by_weight)
-        print("Ingredients: ", list(top_5_ingredients))
-        print("All Ingredients: ", list(sorted_ingredients_by_weight))
+        # print("Ingredients: ", list(top_5_ingredients))
+        # print("All Ingredients: ", list(sorted_ingredients_by_weight))
 
 
 def get_average(verb_dic):
@@ -129,6 +129,8 @@ def main():
         print("recall: ", evaluation[utensil]['Recall'] * 100, "%")
         print("avg. weight of tp: ", get_average(evaluation[utensil]['True Positive']))
         print("avg. weight of fp: ", get_average(evaluation[utensil]['False Positive']))
+        print("total predictions: ", len(predictions_with_weight[utensil]))
+        print("total truths: ", len(true_foods_for_utensil))
 
         avg['Precision'] += evaluation[utensil]['Precision']
         avg['Recall'] += evaluation[utensil]['Recall']

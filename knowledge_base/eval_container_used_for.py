@@ -66,7 +66,7 @@ def print_most_significant_verbs(predictions):
         print("container: ", prediction[0])
         top_5_verbs = ast.literal_eval(prediction[2])
         print("top 5 verbs: ", list(top_5_verbs.keys()))
-        top_5_antonyms = ast.literal_eval(prediction[4])
+        top_5_antonyms = ast.literal_eval(prediction[3])
         print("top 5 antonyms: ", list(top_5_antonyms.keys()))
 
 
